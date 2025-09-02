@@ -9,99 +9,132 @@ import {
   Square, 
   Calendar,
   MapPin,
-  Camera
+  Camera,
+  Loader2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-
-// Mock data - será substituído por dados reais
-const mockTodaySchedule = {
-  shift: "Turno Manhã",
-  startTime: "08:00",
-  endTime: "17:00",
-  breakMinutes: 60,
-  isRemote: false,
-  requiresGPS: true,
-  requiresSelfie: false
-};
-
-const mockTimeEntries = [
-  { id: 1, type: "entrada", time: "08:05", valid: true, late: true },
-  { id: 2, type: "pausa_inicio", time: "12:00", valid: true, late: false },
-  { id: 3, type: "pausa_fim", time: "13:05", valid: true, late: true },
-];
-
-const mockCurrentStatus = {
-  isWorking: true,
-  isOnBreak: false,
-  currentTime: "14:30",
-  workedHours: "05:25",
-  breakTime: "01:05"
-};
+import { useTimesheet, TimeEntryType } from '@/hooks/useTimesheet';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Timesheet() {
-  const [location, setLocation] = useState<GeolocationPosition | null>(null);
-  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const { 
+    todayEntries, 
+    todaySchedule, 
+    workStatus, 
+    loading, 
+    registerTimeEntry, 
+    getCurrentLocation 
+  } = useTimesheet();
+  
+  const { toast } = useToast();
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleClockAction = async (action: 'entrada' | 'saida' | 'pausa_inicio' | 'pausa_fim') => {
-    // Get location if required
-    if (mockTodaySchedule.requiresGPS) {
-      setIsLoadingLocation(true);
-      try {
-        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject);
-        });
-        setLocation(position);
-      } catch (error) {
-        console.error('Location error:', error);
-        // Handle location error
+  const handleClockAction = async (action: TimeEntryType) => {
+    if (isProcessing) return;
+    
+    setIsProcessing(true);
+
+    try {
+      let coordinates;
+
+      // Get location if required and not remote work
+      const requiresLocation = todaySchedule?.localizacao_obrigatoria && !todaySchedule?.remoto;
+      if (requiresLocation) {
+        try {
+          coordinates = await getCurrentLocation();
+        } catch (error: any) {
+          toast({
+            title: "Localização necessária",
+            description: error.message,
+            variant: "destructive",
+          });
+          setIsProcessing(false);
+          return;
+        }
       }
-      setIsLoadingLocation(false);
+
+      // Register the time entry
+      const success = await registerTimeEntry(action, coordinates);
+      
+      if (!success) {
+        setIsProcessing(false);
+        return;
+      }
+
+    } catch (error: any) {
+      toast({
+        title: "Erro ao registrar ponto",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
     }
-
-    // TODO: Implement actual time entry creation with Supabase
-    console.log('Clock action:', action, location);
   };
 
-  const getNextAction = () => {
-    if (!mockCurrentStatus.isWorking) return 'entrada';
-    if (!mockCurrentStatus.isOnBreak && mockTodaySchedule.breakMinutes > 0) return 'pausa_inicio';
-    if (mockCurrentStatus.isOnBreak) return 'pausa_fim';
-    return 'saida';
-  };
-
-  const getActionLabel = (action: string) => {
+  const getActionLabel = (action: TimeEntryType | null) => {
+    if (!action) return 'Ponto finalizado';
+    
     const labels = {
       'entrada': 'Registrar Entrada',
       'saida': 'Registrar Saída',
       'pausa_inicio': 'Iniciar Pausa',
       'pausa_fim': 'Finalizar Pausa'
     };
-    return labels[action as keyof typeof labels];
+    return labels[action];
   };
 
-  const getActionIcon = (action: string) => {
+  const getActionIcon = (action: TimeEntryType | null) => {
+    if (!action) return <Square className="h-5 w-5" />;
+    
     const icons = {
       'entrada': Play,
       'saida': Square,
       'pausa_inicio': Pause,
       'pausa_fim': Play
     };
-    const Icon = icons[action as keyof typeof icons];
+    const Icon = icons[action];
     return <Icon className="h-5 w-5" />;
   };
 
-  const getActionColor = (action: string) => {
+  const getActionColor = (action: TimeEntryType | null) => {
+    if (!action) return 'bg-muted text-muted-foreground cursor-not-allowed';
+    
     const colors = {
-      'entrada': 'bg-time-entry hover:bg-time-entry/90',
-      'saida': 'bg-time-exit hover:bg-time-exit/90',
-      'pausa_inicio': 'bg-time-pause hover:bg-time-pause/90',
-      'pausa_fim': 'bg-success hover:bg-success/90'
+      'entrada': 'bg-success hover:bg-success/90 text-white',
+      'saida': 'bg-destructive hover:bg-destructive/90 text-white',
+      'pausa_inicio': 'bg-warning hover:bg-warning/90 text-white',
+      'pausa_fim': 'bg-success hover:bg-success/90 text-white'
     };
-    return colors[action as keyof typeof colors];
+    return colors[action];
   };
 
-  const nextAction = getNextAction();
+  const formatEntryType = (tipo: string) => {
+    const types = {
+      'entrada': 'Entrada',
+      'pausa_inicio': 'Início Pausa',
+      'pausa_fim': 'Fim Pausa',
+      'saida': 'Saída'
+    };
+    return types[tipo as keyof typeof types] || tipo;
+  };
+
+  const formatTime = (timestamp: string) => {
+    return format(new Date(timestamp), 'HH:mm');
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex items-center space-x-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Carregando dados do ponto...</span>
+        </div>
+      </div>
+    );
+  }
+
   const today = new Date();
 
   return (
@@ -129,59 +162,84 @@ export default function Timesheet() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Turno</p>
-                <p className="text-lg font-semibold">{mockTodaySchedule.shift}</p>
-                <p className="text-sm text-muted-foreground">
-                  {mockTodaySchedule.startTime} às {mockTodaySchedule.endTime}
+                <p className="text-lg font-semibold">
+                  {todaySchedule?.shifts.nome_turno || 'Sem turno definido'}
                 </p>
+                {todaySchedule?.shifts && (
+                  <p className="text-sm text-muted-foreground">
+                    {todaySchedule.shifts.hora_inicio} às {todaySchedule.shifts.hora_fim}
+                  </p>
+                )}
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Horas Trabalhadas</p>
-                <p className="text-2xl font-bold text-primary">{mockCurrentStatus.workedHours}</p>
+                <p className="text-2xl font-bold text-primary">{workStatus.workedHours}</p>
+                {workStatus.isOnBreak && (
+                  <p className="text-sm text-warning">Em pausa: {workStatus.breakTime}</p>
+                )}
               </div>
             </div>
 
             <div className="flex justify-center">
               <Button
                 size="lg"
-                className={`h-20 w-full text-lg font-semibold text-white ${getActionColor(nextAction)}`}
-                onClick={() => handleClockAction(nextAction as any)}
-                disabled={isLoadingLocation}
+                className={`h-20 w-full text-lg font-semibold ${getActionColor(workStatus.nextAction)}`}
+                onClick={() => workStatus.nextAction && handleClockAction(workStatus.nextAction)}
+                disabled={isProcessing || !workStatus.nextAction}
               >
-                {isLoadingLocation ? (
+                {isProcessing ? (
                   <div className="flex items-center space-x-2">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
-                    <span>Obtendo localização...</span>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span>Registrando...</span>
                   </div>
                 ) : (
                   <div className="flex items-center space-x-2">
-                    {getActionIcon(nextAction)}
-                    <span>{getActionLabel(nextAction)}</span>
+                    {getActionIcon(workStatus.nextAction)}
+                    <span>{getActionLabel(workStatus.nextAction)}</span>
                   </div>
                 )}
               </Button>
             </div>
 
-            {/* Requirements */}
-            <div className="flex flex-wrap gap-2">
-              {mockTodaySchedule.isRemote && (
-                <Badge variant="outline" className="text-xs">
-                  <MapPin className="h-3 w-3 mr-1" />
-                  Trabalho Remoto
+            {/* Work Status Indicators */}
+            <div className="flex justify-center space-x-4">
+              {workStatus.isWorking && !workStatus.isOnBreak && (
+                <Badge variant="default" className="bg-success">
+                  <Clock className="h-3 w-3 mr-1" />
+                  Trabalhando
                 </Badge>
               )}
-              {mockTodaySchedule.requiresGPS && (
-                <Badge variant="outline" className="text-xs">
-                  <MapPin className="h-3 w-3 mr-1" />
-                  GPS Obrigatório
+              {workStatus.isOnBreak && (
+                <Badge variant="default" className="bg-warning">
+                  <Pause className="h-3 w-3 mr-1" />
+                  Em pausa
                 </Badge>
               )}
-              {mockTodaySchedule.requiresSelfie && (
-                <Badge variant="outline" className="text-xs">
-                  <Camera className="h-3 w-3 mr-1" />
-                  Selfie Obrigatória
+              {!workStatus.isWorking && !workStatus.isOnBreak && todayEntries.length > 0 && (
+                <Badge variant="outline">
+                  <Square className="h-3 w-3 mr-1" />
+                  Dia finalizado
                 </Badge>
               )}
             </div>
+
+            {/* Requirements */}
+            {todaySchedule && (
+              <div className="flex flex-wrap gap-2">
+                {todaySchedule.remoto && (
+                  <Badge variant="outline" className="text-xs">
+                    <MapPin className="h-3 w-3 mr-1" />
+                    Trabalho Remoto
+                  </Badge>
+                )}
+                {todaySchedule.localizacao_obrigatoria && !todaySchedule.remoto && (
+                  <Badge variant="outline" className="text-xs">
+                    <MapPin className="h-3 w-3 mr-1" />
+                    GPS Obrigatório
+                  </Badge>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -197,44 +255,33 @@ export default function Timesheet() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {mockTimeEntries.length === 0 ? (
+            {todayEntries.length === 0 ? (
               <p className="text-center text-muted-foreground py-4">
                 Nenhum registro hoje
               </p>
             ) : (
               <div className="space-y-3">
-                {mockTimeEntries.map((entry) => (
+                {todayEntries.map((entry) => (
                   <div key={entry.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
                     <div className="flex items-center space-x-3">
-                      <div className={`h-3 w-3 rounded-full ${entry.valid ? 'bg-success' : 'bg-destructive'}`} />
+                      <div className={`h-3 w-3 rounded-full ${entry.valido ? 'bg-success' : 'bg-destructive'}`} />
                       <div>
-                        <p className="text-sm font-medium capitalize">
-                          {entry.type.replace('_', ' ')}
+                        <p className="text-sm font-medium">
+                          {formatEntryType(entry.tipo)}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {entry.time}
+                          {formatTime(entry.timestamp)}
                         </p>
                       </div>
                     </div>
                     <Badge 
-                      variant={entry.late ? 'destructive' : 'default'}
+                      variant={entry.valido ? 'default' : 'destructive'}
                       className="text-xs"
                     >
-                      {entry.late ? 'Atrasado' : 'No horário'}
+                      {entry.valido ? 'Válido' : 'Inválido'}
                     </Badge>
                   </div>
                 ))}
-              </div>
-            )}
-            
-            {mockCurrentStatus.isOnBreak && (
-              <div className="p-3 bg-warning/10 border border-warning/20 rounded-lg">
-                <p className="text-sm font-medium text-warning-foreground">
-                  Você está em pausa
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Tempo de pausa: {mockCurrentStatus.breakTime}
-                </p>
               </div>
             )}
           </CardContent>
@@ -244,28 +291,44 @@ export default function Timesheet() {
       {/* Weekly Summary */}
       <Card>
         <CardHeader>
-          <CardTitle>Resumo da Semana</CardTitle>
+          <CardTitle>Resumo de Hoje</CardTitle>
           <CardDescription>
-            Suas horas trabalhadas esta semana
+            Suas horas trabalhadas hoje
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-primary">32:15</p>
+              <p className="text-2xl font-bold text-primary">{workStatus.workedHours}</p>
               <p className="text-sm text-muted-foreground">Horas Trabalhadas</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-success">40:00</p>
+              <p className="text-2xl font-bold text-muted-foreground">
+                {todaySchedule ? 
+                  (() => {
+                    const start = todaySchedule.shifts.hora_inicio.split(':');
+                    const end = todaySchedule.shifts.hora_fim.split(':');
+                    const startMinutes = parseInt(start[0]) * 60 + parseInt(start[1]);
+                    const endMinutes = parseInt(end[0]) * 60 + parseInt(end[1]);
+                    const totalMinutes = endMinutes - startMinutes - (todaySchedule.shifts.intervalo_minutos || 0);
+                    const hours = Math.floor(totalMinutes / 60);
+                    const minutes = totalMinutes % 60;
+                    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                  })()
+                  : '00:00'
+                }
+              </p>
               <p className="text-sm text-muted-foreground">Horas Previstas</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-warning">2:30</p>
-              <p className="text-sm text-muted-foreground">Horas Extras</p>
+              <p className="text-2xl font-bold text-warning">{workStatus.breakTime}</p>
+              <p className="text-sm text-muted-foreground">Tempo de Pausa</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-destructive">-10:15</p>
-              <p className="text-sm text-muted-foreground">Saldo</p>
+              <p className="text-2xl font-bold">
+                {todayEntries.length}
+              </p>
+              <p className="text-sm text-muted-foreground">Registros</p>
             </div>
           </div>
         </CardContent>
