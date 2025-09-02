@@ -9,7 +9,7 @@ import { Building2, Clock, Shield } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function Auth() {
-  const { signIn, signUp, user, loading } = useAuth();
+  const { signIn, signUp, signOut, user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   // Redirect if already authenticated
@@ -17,7 +17,7 @@ export default function Auth() {
     return <Navigate to="/dashboard" replace />;
   }
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleCompanySignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
@@ -25,7 +25,31 @@ export default function Auth() {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
     
-    await signIn(email, password);
+    const result = await signIn(email, password);
+    
+    // Verificar se o usuário é admin após o login
+    if (!result.error) {
+      // Pequeno delay para garantir que o auth state seja atualizado
+      setTimeout(async () => {
+        const { supabase } = await import('@/integrations/supabase/client');
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user) {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('user_id', user.id)
+            .single();
+            
+          if (error || data?.role !== 'admin') {
+            // Se não for admin, fazer logout
+            await signOut();
+            alert('Apenas administradores podem fazer login como empresa.');
+          }
+        }
+      }, 1000);
+    }
+    
     setIsLoading(false);
   };
 
@@ -109,7 +133,7 @@ export default function Auth() {
                       Entre com as credenciais da sua empresa
                     </CardDescription>
                   </CardHeader>
-                  <form onSubmit={handleSignIn}>
+                  <form onSubmit={handleCompanySignIn}>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="company-email">Email</Label>
