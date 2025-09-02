@@ -49,6 +49,20 @@ export default function Auth() {
     setIsLoading(false);
   };
 
+  const handleEmployeeSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    const formData = new FormData(e.target as HTMLFormElement);
+    const username = formData.get('username') as string;
+    const password = formData.get('password') as string;
+    
+    // Convert username to temporary email format for Supabase auth
+    const email = `${username}@temp.local`;
+    await signIn(email, password);
+    setIsLoading(false);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -74,99 +88,151 @@ export default function Auth() {
         </div>
 
         <Card>
-          <Tabs defaultValue="signin" className="w-full">
+          <Tabs defaultValue="company-signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Entrar</TabsTrigger>
-              <TabsTrigger value="signup">Cadastrar</TabsTrigger>
+              <TabsTrigger value="company-signin">Empresa</TabsTrigger>
+              <TabsTrigger value="employee-signin">Colaborador</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="signin">
-              <CardHeader>
-                <CardTitle>Fazer Login</CardTitle>
-                <CardDescription>
-                  Entre com suas credenciais para acessar o sistema
-                </CardDescription>
-              </CardHeader>
-              <form onSubmit={handleSignIn}>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="seu@email.com"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Senha</Label>
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      placeholder="••••••••"
-                      required
-                    />
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    type="submit" 
-                    className="w-full" 
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Entrando..." : "Entrar"}
-                  </Button>
-                </CardFooter>
-              </form>
+            {/* Company Login */}
+            <TabsContent value="company-signin">
+              <Tabs defaultValue="signin" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsTrigger value="signin">Entrar</TabsTrigger>
+                  <TabsTrigger value="signup">Cadastrar Empresa</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="signin">
+                  <CardHeader>
+                    <CardTitle>Login da Empresa</CardTitle>
+                    <CardDescription>
+                      Entre com as credenciais da sua empresa
+                    </CardDescription>
+                  </CardHeader>
+                  <form onSubmit={handleSignIn}>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="company-email">Email</Label>
+                        <Input
+                          id="company-email"
+                          name="email"
+                          type="email"
+                          placeholder="admin@empresa.com"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="company-password">Senha</Label>
+                        <Input
+                          id="company-password"
+                          name="password"
+                          type="password"
+                          placeholder="••••••••"
+                          required
+                        />
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <Button 
+                        type="submit" 
+                        className="w-full" 
+                        disabled={isLoading}
+                      >
+                        {isLoading ? "Entrando..." : "Entrar como Empresa"}
+                      </Button>
+                    </CardFooter>
+                  </form>
+                </TabsContent>
+
+                <TabsContent value="signup">
+                  <CardHeader>
+                    <CardTitle>Cadastrar Empresa</CardTitle>
+                    <CardDescription>
+                      Cadastre sua empresa para começar a usar o Ponto Seguro
+                    </CardDescription>
+                  </CardHeader>
+                  <form onSubmit={handleSignUp}>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="nomeEmpresa">Nome da Empresa</Label>
+                        <Input
+                          id="nomeEmpresa"
+                          name="nomeEmpresa"
+                          placeholder="Minha Empresa Ltda"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="nome">Seu Nome</Label>
+                        <Input
+                          id="nome"
+                          name="nome"
+                          placeholder="João Silva"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                          id="email"
+                          name="email"
+                          type="email"
+                          placeholder="joao@empresa.com"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="password">Senha</Label>
+                        <Input
+                          id="password"
+                          name="password"
+                          type="password"
+                          placeholder="••••••••"
+                          minLength={6}
+                          required
+                        />
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <Button 
+                        type="submit" 
+                        className="w-full" 
+                        disabled={isLoading}
+                      >
+                        {isLoading ? "Criando conta..." : "Criar Conta da Empresa"}
+                      </Button>
+                    </CardFooter>
+                  </form>
+                </TabsContent>
+              </Tabs>
             </TabsContent>
 
-            <TabsContent value="signup">
+            {/* Employee Login */}
+            <TabsContent value="employee-signin">
               <CardHeader>
-                <CardTitle>Criar Conta</CardTitle>
+                <CardTitle>Login do Colaborador</CardTitle>
                 <CardDescription>
-                  Cadastre sua empresa para começar a usar o Ponto Seguro
+                  Entre com seu usuário e senha fornecidos pela empresa
                 </CardDescription>
               </CardHeader>
-              <form onSubmit={handleSignUp}>
+              <form onSubmit={handleEmployeeSignIn}>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="nomeEmpresa">Nome da Empresa</Label>
+                    <Label htmlFor="username">Usuário</Label>
                     <Input
-                      id="nomeEmpresa"
-                      name="nomeEmpresa"
-                      placeholder="Minha Empresa Ltda"
+                      id="username"
+                      name="username"
+                      placeholder="seu_usuario"
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="nome">Seu Nome</Label>
+                    <Label htmlFor="employee-password">Senha</Label>
                     <Input
-                      id="nome"
-                      name="nome"
-                      placeholder="João Silva"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="joao@empresa.com"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Senha</Label>
-                    <Input
-                      id="password"
+                      id="employee-password"
                       name="password"
                       type="password"
                       placeholder="••••••••"
-                      minLength={6}
                       required
                     />
                   </div>
@@ -177,7 +243,7 @@ export default function Auth() {
                     className="w-full" 
                     disabled={isLoading}
                   >
-                    {isLoading ? "Criando conta..." : "Criar Conta"}
+                    {isLoading ? "Entrando..." : "Entrar como Colaborador"}
                   </Button>
                 </CardFooter>
               </form>
