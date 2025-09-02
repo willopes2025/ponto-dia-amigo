@@ -147,6 +147,45 @@ export type Database = {
           },
         ]
       }
+      locations: {
+        Row: {
+          ativo: boolean | null
+          company_id: string
+          created_at: string | null
+          endereco: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          nome: string
+          raio_metros: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          ativo?: boolean | null
+          company_id: string
+          created_at?: string | null
+          endereco?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          nome: string
+          raio_metros?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          ativo?: boolean | null
+          company_id?: string
+          created_at?: string | null
+          endereco?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          nome?: string
+          raio_metros?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       message_logs: {
         Row: {
           canal: Database["public"]["Enums"]["messaging_provider"]
@@ -253,6 +292,7 @@ export type Database = {
           telefone: string | null
           updated_at: string | null
           user_id: string
+          username: string | null
         }
         Insert: {
           company_id: string
@@ -265,6 +305,7 @@ export type Database = {
           telefone?: string | null
           updated_at?: string | null
           user_id: string
+          username?: string | null
         }
         Update: {
           company_id?: string
@@ -277,6 +318,7 @@ export type Database = {
           telefone?: string | null
           updated_at?: string | null
           user_id?: string
+          username?: string | null
         }
         Relationships: [
           {

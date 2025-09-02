@@ -91,9 +91,14 @@ export default function Employees() {
 
   const handleCreateEmployee = async (employeeData: any) => {
     try {
+      // Generate a temporary email if using username
+      const emailForAuth = employeeData.useUsername 
+        ? `${employeeData.username}@temp.local`
+        : employeeData.email;
+
       // First create the user in auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: employeeData.email,
+        email: emailForAuth,
         password: employeeData.password || 'temp123456', // Temporary password
         options: {
           emailRedirectTo: `${window.location.origin}/`,
@@ -109,12 +114,20 @@ export default function Employees() {
 
       if (authData.user) {
         // Update the profile with additional data
+        const profileUpdateData: any = {
+          telefone: employeeData.telefone,
+          status: 'ativo'
+        };
+
+        // If using username, update the profile with username and clear email
+        if (employeeData.useUsername) {
+          profileUpdateData.username = employeeData.username;
+          profileUpdateData.email = ''; // Clear the temporary email
+        }
+
         const { error: profileError } = await supabase
           .from('profiles')
-          .update({
-            telefone: employeeData.telefone,
-            status: 'ativo'
-          })
+          .update(profileUpdateData)
           .eq('user_id', authData.user.id);
 
         if (profileError) {
@@ -153,7 +166,7 @@ export default function Employees() {
         
         toast({
           title: "Colaborador criado",
-          description: "O colaborador foi criado com sucesso. Um email de confirmação foi enviado.",
+          description: `Colaborador criado com sucesso. ${employeeData.useUsername ? 'Username: ' + employeeData.username : 'Email de confirmação enviado.'}`,
         });
       }
     } catch (error: any) {

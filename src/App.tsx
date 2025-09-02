@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Timesheet from "./pages/Timesheet";
 import Employees from "./pages/Employees";
+import Locations from "./pages/Locations";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/timesheet" element={<Timesheet />} />
               <Route path="/employees" element={<Employees />} />
+              <Route path="/locations" element={<Locations />} />
               <Route path="/schedules" element={<div>Escalas - Em desenvolvimento</div>} />
               <Route path="/reports" element={<div>Relatórios - Em desenvolvimento</div>} />
               <Route path="/settings" element={<div>Configurações - Em desenvolvimento</div>} />

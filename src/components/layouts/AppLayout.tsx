@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { 
   Clock, 
@@ -9,16 +9,19 @@ import {
   LogOut,
   Menu,
   X,
-  Building2
+  Building2,
+  MapPin
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
   { name: 'Meu Ponto', href: '/timesheet', icon: Clock },
   { name: 'Colaboradores', href: '/employees', icon: Users, adminOnly: true },
+  { name: 'Localizações', href: '/locations', icon: MapPin, adminOnly: true },
   { name: 'Escalas', href: '/schedules', icon: Calendar, adminOnly: true },
   { name: 'Relatórios', href: '/reports', icon: BarChart3, adminOnly: true },
   { name: 'Configurações', href: '/settings', icon: Settings, adminOnly: true },
@@ -28,14 +31,36 @@ export function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserProfile();
+    }
+  }, [user]);
+
+  const fetchUserProfile = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role, nome')
+        .eq('user_id', user?.id)
+        .single();
+
+      if (error) throw error;
+      
+      setUserProfile(data);
+      setIsAdmin(data?.role === 'admin');
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+  };
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/auth');
   };
-
-  // TODO: Get user profile to check if admin
-  const isAdmin = true; // Placeholder
 
   return (
     <div className="flex h-screen bg-background">
@@ -87,7 +112,7 @@ export function AppLayout() {
             
             <div className="flex items-center space-x-4">
               <span className="text-sm text-muted-foreground">
-                {user?.email}
+                {userProfile?.nome || user?.email}
               </span>
               <Button variant="ghost" size="sm" onClick={handleSignOut}>
                 <LogOut className="h-4 w-4" />

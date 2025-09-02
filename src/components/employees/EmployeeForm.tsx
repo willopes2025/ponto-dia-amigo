@@ -9,6 +9,7 @@ interface Employee {
   id: string;
   nome: string;
   email: string;
+  username?: string;
   telefone?: string;
   status: 'ativo' | 'inativo';
   role: 'admin' | 'collab';
@@ -33,11 +34,13 @@ export function EmployeeForm({ employee, shifts, onSubmit, onCancel, isEditing =
   const [formData, setFormData] = useState({
     nome: employee?.nome || '',
     email: employee?.email || '',
+    username: employee?.username || '',
     telefone: employee?.telefone || '',
     role: employee?.role || 'collab',
     status: employee?.status || 'ativo',
     password: '',
-    shiftId: ''
+    shiftId: '',
+    useUsername: false
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -73,18 +76,51 @@ export function EmployeeForm({ employee, shifts, onSubmit, onCancel, isEditing =
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          value={formData.email}
-          onChange={(e) => handleInputChange('email', e.target.value)}
-          placeholder="joao@empresa.com"
-          required
-          disabled={isEditing} // Email não pode ser alterado após criação
-        />
-      </div>
+      {!isEditing && (
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="useUsername"
+              checked={formData.useUsername}
+              onCheckedChange={(checked) => handleInputChange('useUsername', checked)}
+            />
+            <Label htmlFor="useUsername">Usar nome de usuário ao invés de email</Label>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Permite criar colaborador sem email, usando apenas nome de usuário
+          </p>
+        </div>
+      )}
+
+      {formData.useUsername ? (
+        <div className="space-y-2">
+          <Label htmlFor="username">Nome de Usuário</Label>
+          <Input
+            id="username"
+            value={formData.username}
+            onChange={(e) => handleInputChange('username', e.target.value)}
+            placeholder="joao.silva"
+            required={formData.useUsername}
+            disabled={isEditing}
+          />
+          <p className="text-xs text-muted-foreground">
+            Será usado para fazer login no sistema
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            value={formData.email}
+            onChange={(e) => handleInputChange('email', e.target.value)}
+            placeholder="joao@empresa.com"
+            required={!formData.useUsername}
+            disabled={isEditing} // Email não pode ser alterado após criação
+          />
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="telefone">Telefone</Label>
