@@ -7,7 +7,6 @@ import {
   CheckCircle, 
   AlertCircle, 
   Calendar,
-  TrendingUp,
   MapPin
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -31,7 +30,6 @@ interface RecentActivity {
 }
 
 interface UserProfile {
-  role: 'admin' | 'collab';
   company_id: string;
 }
 
@@ -59,7 +57,7 @@ export default function Dashboard() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('role, company_id')
+        .select('company_id')
         .eq('user_id', user?.id)
         .single();
 
@@ -165,219 +163,161 @@ export default function Dashboard() {
       </div>
     );
   }
+
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
         <p className="text-muted-foreground">
-          {userProfile?.role === 'admin' 
-            ? 'Visão geral do controle de ponto da sua empresa'
-            : 'Bem-vindo ao seu painel de controle de ponto'
-          }
+          Visão geral do controle de ponto da sua empresa
         </p>
       </div>
 
-      {/* Stats Cards - Different for Admin vs Employee */}
-      {userProfile?.role === 'admin' ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total de Colaboradores
-              </CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalEmployees}</div>
-              <p className="text-xs text-muted-foreground">
-                cadastrados no sistema
-              </p>
-            </CardContent>
-          </Card>
+      {/* Stats Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Total de Colaboradores
+            </CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalEmployees}</div>
+            <p className="text-xs text-muted-foreground">
+              cadastrados no sistema
+            </p>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Colaboradores Ativos
-              </CardTitle>
-              <CheckCircle className="h-4 w-4 text-success" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-success">{stats.activeEmployees}</div>
-              <p className="text-xs text-muted-foreground">
-                em atividade
-              </p>
-            </CardContent>
-          </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Colaboradores Ativos
+            </CardTitle>
+            <CheckCircle className="h-4 w-4 text-success" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-success">{stats.activeEmployees}</div>
+            <p className="text-xs text-muted-foreground">
+              em atividade
+            </p>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Registros Hoje
-              </CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.todayEntries}</div>
-              <p className="text-xs text-muted-foreground">
-                pontos registrados
-              </p>
-            </CardContent>
-          </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Registros Hoje
+            </CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.todayEntries}</div>
+            <p className="text-xs text-muted-foreground">
+              pontos registrados
+            </p>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Atrasos Hoje
-              </CardTitle>
-              <AlertCircle className="h-4 w-4 text-warning" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-warning">{stats.lateToday}</div>
-              <p className="text-xs text-muted-foreground">
-                colaboradores atrasados
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Pontos Hoje
-              </CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.todayEntries}</div>
-              <p className="text-xs text-muted-foreground">
-                registros realizados
-              </p>
-            </CardContent>
-          </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Atrasos Hoje
+            </CardTitle>
+            <AlertCircle className="h-4 w-4 text-warning" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-warning">{stats.lateToday}</div>
+            <p className="text-xs text-muted-foreground">
+              colaboradores atrasados
+            </p>
+          </CardContent>
+        </Card>
+      </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Status
-              </CardTitle>
-              <CheckCircle className="h-4 w-4 text-success" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-success">Ativo</div>
-              <p className="text-xs text-muted-foreground">
-                sistema funcionando
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {userProfile?.role === 'admin' ? (
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Recent Activity */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Calendar className="h-5 w-5" />
-                <span>Atividade Recente</span>
-              </CardTitle>
-              <CardDescription>
-                Últimas movimentações de ponto
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {recentActivity.length > 0 ? recentActivity.map((activity) => (
-                <div key={activity.id} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className={`h-2 w-2 rounded-full ${
-                      activity.status === 'on-time' ? 'bg-success' : 'bg-warning'
-                    }`} />
-                    <div>
-                      <p className="text-sm font-medium">{activity.employee_name}</p>
-                      <p className="text-xs text-muted-foreground">{formatType(activity.tipo)}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium">{formatTime(activity.timestamp)}</p>
-                    <Badge 
-                      variant={activity.status === 'on-time' ? 'default' : 'destructive'}
-                      className="text-xs"
-                    >
-                      {activity.status === 'on-time' ? 'No horário' : 'Atrasado'}
-                    </Badge>
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Recent Activity */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Calendar className="h-5 w-5" />
+              <span>Atividade Recente</span>
+            </CardTitle>
+            <CardDescription>
+              Últimas movimentações de ponto
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {recentActivity.length > 0 ? recentActivity.map((activity) => (
+              <div key={activity.id} className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className={`h-2 w-2 rounded-full ${
+                    activity.status === 'on-time' ? 'bg-success' : 'bg-warning'
+                  }`} />
+                  <div>
+                    <p className="text-sm font-medium">{activity.employee_name}</p>
+                    <p className="text-xs text-muted-foreground">{formatType(activity.tipo)}</p>
                   </div>
                 </div>
-              )) : (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  Nenhuma atividade hoje
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <CheckCircle className="h-5 w-5" />
-                <span>Ações Rápidas</span>
-              </CardTitle>
-              <CardDescription>
-                Tarefas administrativas
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                <div>
-                  <p className="text-sm font-medium">Gerenciar Localizações</p>
-                  <p className="text-xs text-muted-foreground">Definir locais de trabalho</p>
+                <div className="text-right">
+                  <p className="text-sm font-medium">{formatTime(activity.timestamp)}</p>
+                  <Badge 
+                    variant={activity.status === 'on-time' ? 'default' : 'destructive'}
+                    className="text-xs"
+                  >
+                    {activity.status === 'on-time' ? 'No horário' : 'Atrasado'}
+                  </Badge>
                 </div>
-                <Badge variant="outline">
-                  <MapPin className="h-3 w-3" />
-                </Badge>
               </div>
-              
-              <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                <div>
-                  <p className="text-sm font-medium">Revisar Solicitações</p>
-                  <p className="text-xs text-muted-foreground">Pendências para análise</p>
-                </div>
-                <Badge variant="outline">0</Badge>
-              </div>
-              
-              <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                <div>
-                  <p className="text-sm font-medium">Relatórios</p>
-                  <p className="text-xs text-muted-foreground">Gerar relatórios do período</p>
-                </div>
-                <Badge variant="outline">Novo</Badge>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      ) : (
-        <div className="grid gap-6">
-          {/* Employee Quick Punch */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Clock className="h-5 w-5" />
-                <span>Registrar Ponto</span>
-              </CardTitle>
-              <CardDescription>
-                Registre sua entrada, saída ou intervalo
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-center text-muted-foreground py-8">
-                Acesse "Meu Ponto" para registrar seu horário
+            )) : (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                Nenhuma atividade hoje
               </p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <CheckCircle className="h-5 w-5" />
+              <span>Ações Rápidas</span>
+            </CardTitle>
+            <CardDescription>
+              Tarefas administrativas
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+              <div>
+                <p className="text-sm font-medium">Gerenciar Localizações</p>
+                <p className="text-xs text-muted-foreground">Definir locais de trabalho</p>
+              </div>
+              <Badge variant="outline">
+                <MapPin className="h-3 w-3" />
+              </Badge>
+            </div>
+            
+            <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+              <div>
+                <p className="text-sm font-medium">Revisar Solicitações</p>
+                <p className="text-xs text-muted-foreground">Pendências para análise</p>
+              </div>
+              <Badge variant="outline">0</Badge>
+            </div>
+            
+            <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+              <div>
+                <p className="text-sm font-medium">Relatórios</p>
+                <p className="text-xs text-muted-foreground">Gerar relatórios do período</p>
+              </div>
+              <Badge variant="outline">Novo</Badge>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

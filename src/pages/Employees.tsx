@@ -18,7 +18,6 @@ interface Employee {
   email: string;
   telefone?: string;
   status: 'ativo' | 'inativo';
-  role: 'admin' | 'collab';
   created_at: string;
   user_id: string;
 }
@@ -36,7 +35,6 @@ export default function Employees() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'ativo' | 'inativo'>('all');
-  const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'collab'>('all');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -59,8 +57,7 @@ export default function Employees() {
       // Cast the data to ensure proper typing
       const typedEmployees = (data || []).map(employee => ({
         ...employee,
-        status: employee.status as 'ativo' | 'inativo',
-        role: employee.role as 'admin' | 'collab'
+        status: employee.status as 'ativo' | 'inativo'
       }));
       
       setEmployees(typedEmployees);
@@ -103,9 +100,7 @@ export default function Employees() {
         options: {
           emailRedirectTo: `${window.location.origin}/`,
           data: {
-            nome: employeeData.nome,
-            company_id: '550e8400-e29b-41d4-a716-446655440000', // Demo company ID
-            role: employeeData.role
+            nome: employeeData.nome
           }
         }
       });
@@ -188,7 +183,6 @@ export default function Employees() {
           nome: employeeData.nome,
           email: employeeData.email,
           telefone: employeeData.telefone,
-          role: employeeData.role,
           status: employeeData.status
         })
         .eq('id', editingEmployee.id);
@@ -271,13 +265,11 @@ export default function Employees() {
     const matchesSearch = employee.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          employee.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || employee.status === statusFilter;
-    const matchesRole = roleFilter === 'all' || employee.role === roleFilter;
     
-    return matchesSearch && matchesStatus && matchesRole;
+    return matchesSearch && matchesStatus;
   });
 
   const activeEmployees = employees.filter(emp => emp.status === 'ativo').length;
-  const adminEmployees = employees.filter(emp => emp.role === 'admin').length;
 
   if (loading) {
     return (
@@ -320,7 +312,7 @@ export default function Employees() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total</CardTitle>
@@ -339,16 +331,6 @@ export default function Employees() {
           <CardContent>
             <div className="text-2xl font-bold text-success">{activeEmployees}</div>
             <p className="text-xs text-muted-foreground">em atividade</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Administradores</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{adminEmployees}</div>
-            <p className="text-xs text-muted-foreground">com acesso admin</p>
           </CardContent>
         </Card>
       </div>
@@ -383,9 +365,7 @@ export default function Employees() {
           {showFilters && (
             <EmployeeFilters
               statusFilter={statusFilter}
-              roleFilter={roleFilter}
               onStatusChange={setStatusFilter}
-              onRoleChange={setRoleFilter}
             />
           )}
         </CardHeader>
@@ -398,7 +378,6 @@ export default function Employees() {
                   <TableHead>Nome</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Telefone</TableHead>
-                  <TableHead>Função</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
@@ -406,7 +385,7 @@ export default function Employees() {
               <TableBody>
                 {filteredEmployees.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                       Nenhum colaborador encontrado
                     </TableCell>
                   </TableRow>
@@ -416,11 +395,6 @@ export default function Employees() {
                       <TableCell className="font-medium">{employee.nome}</TableCell>
                       <TableCell>{employee.email}</TableCell>
                       <TableCell>{employee.telefone || '-'}</TableCell>
-                      <TableCell>
-                        <Badge variant={employee.role === 'admin' ? 'default' : 'secondary'}>
-                          {employee.role === 'admin' ? 'Administrador' : 'Colaborador'}
-                        </Badge>
-                      </TableCell>
                       <TableCell>
                         <Badge 
                           variant={employee.status === 'ativo' ? 'default' : 'destructive'}

@@ -44,14 +44,14 @@ export function AppLayout() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('role, nome')
+        .select('nome')
         .eq('user_id', user?.id)
         .single();
 
       if (error) throw error;
       
       setUserProfile(data);
-      setIsAdmin(data?.role === 'admin');
+      setIsAdmin(true); // Todos são admin agora
     } catch (error) {
       console.error('Error fetching user profile:', error);
     }

@@ -287,7 +287,6 @@ export type Database = {
           email: string
           id: string
           nome: string
-          role: Database["public"]["Enums"]["user_role"] | null
           status: string | null
           telefone: string | null
           updated_at: string | null
@@ -300,7 +299,6 @@ export type Database = {
           email: string
           id?: string
           nome: string
-          role?: Database["public"]["Enums"]["user_role"] | null
           status?: string | null
           telefone?: string | null
           updated_at?: string | null
@@ -313,7 +311,6 @@ export type Database = {
           email?: string
           id?: string
           nome?: string
-          role?: Database["public"]["Enums"]["user_role"] | null
           status?: string | null
           telefone?: string | null
           updated_at?: string | null
@@ -543,9 +540,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      is_admin: {
+      get_user_company_id: {
         Args: Record<PropertyKey, never>
-        Returns: boolean
+        Returns: string
       }
     }
     Enums: {
@@ -556,7 +553,6 @@ export type Database = {
       request_status: "pendente" | "aprovado" | "negado"
       request_type: "ajuste" | "abono" | "folga"
       time_entry_type: "entrada" | "saida" | "pausa_inicio" | "pausa_fim"
-      user_role: "admin" | "collab"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -691,7 +687,6 @@ export const Constants = {
       request_status: ["pendente", "aprovado", "negado"],
       request_type: ["ajuste", "abono", "folga"],
       time_entry_type: ["entrada", "saida", "pausa_inicio", "pausa_fim"],
-      user_role: ["admin", "collab"],
     },
   },
 } as const

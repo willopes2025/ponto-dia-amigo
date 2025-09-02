@@ -12,7 +12,6 @@ interface Employee {
   username?: string;
   telefone?: string;
   status: 'ativo' | 'inativo';
-  role: 'admin' | 'collab';
 }
 
 interface Shift {
@@ -36,7 +35,6 @@ export function EmployeeForm({ employee, shifts, onSubmit, onCancel, isEditing =
     email: employee?.email || '',
     username: employee?.username || '',
     telefone: employee?.telefone || '',
-    role: employee?.role || 'collab',
     status: employee?.status || 'ativo',
     password: '',
     shiftId: '',
@@ -148,19 +146,6 @@ export function EmployeeForm({ employee, shifts, onSubmit, onCancel, isEditing =
           </p>
         </div>
       )}
-
-      <div className="space-y-2">
-        <Label htmlFor="role">Função</Label>
-        <Select value={formData.role} onValueChange={(value) => handleInputChange('role', value)}>
-          <SelectTrigger>
-            <SelectValue placeholder="Selecione a função" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="collab">Colaborador</SelectItem>
-            <SelectItem value="admin">Administrador</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
 
       {shifts.length > 0 && !isEditing && (
         <div className="space-y-2">

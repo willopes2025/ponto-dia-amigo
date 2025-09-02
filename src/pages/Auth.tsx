@@ -39,11 +39,10 @@ export default function Auth() {
     const nome = formData.get('nome') as string;
     const nomeEmpresa = formData.get('nomeEmpresa') as string;
     
-    // For signup, we'll create the company and admin user
+    // For signup, we'll create the company and user
     await signUp(email, password, {
       nome,
-      nomeEmpresa,
-      role: 'admin'
+      nomeEmpresa
     });
     
     setIsLoading(false);
