@@ -14,7 +14,488 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      companies: {
+        Row: {
+          chave_api: string | null
+          created_at: string | null
+          id: string
+          janela_disparo_fim: string | null
+          janela_disparo_inicio: string | null
+          nome_fantasia: string
+          provedor_mensageria:
+            | Database["public"]["Enums"]["messaging_provider"]
+            | null
+          remetente: string | null
+          timezone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          chave_api?: string | null
+          created_at?: string | null
+          id?: string
+          janela_disparo_fim?: string | null
+          janela_disparo_inicio?: string | null
+          nome_fantasia: string
+          provedor_mensageria?:
+            | Database["public"]["Enums"]["messaging_provider"]
+            | null
+          remetente?: string | null
+          timezone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          chave_api?: string | null
+          created_at?: string | null
+          id?: string
+          janela_disparo_fim?: string | null
+          janela_disparo_inicio?: string | null
+          nome_fantasia?: string
+          provedor_mensageria?:
+            | Database["public"]["Enums"]["messaging_provider"]
+            | null
+          remetente?: string | null
+          timezone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      daily_summaries: {
+        Row: {
+          atrasos_min: number | null
+          created_at: string | null
+          data: string
+          extras_min: number | null
+          horas_previstas: unknown | null
+          horas_trabalhadas: unknown | null
+          id: string
+          saldo_dia: unknown | null
+          status: Database["public"]["Enums"]["daily_status"] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          atrasos_min?: number | null
+          created_at?: string | null
+          data: string
+          extras_min?: number | null
+          horas_previstas?: unknown | null
+          horas_trabalhadas?: unknown | null
+          id?: string
+          saldo_dia?: unknown | null
+          status?: Database["public"]["Enums"]["daily_status"] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          atrasos_min?: number | null
+          created_at?: string | null
+          data?: string
+          extras_min?: number | null
+          horas_previstas?: unknown | null
+          horas_trabalhadas?: unknown | null
+          id?: string
+          saldo_dia?: unknown | null
+          status?: Database["public"]["Enums"]["daily_status"] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_summaries_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      holidays: {
+        Row: {
+          company_id: string
+          created_at: string | null
+          data: string
+          id: string
+          nome: string
+          regional: boolean | null
+          uf: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string | null
+          data: string
+          id?: string
+          nome: string
+          regional?: boolean | null
+          uf?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string | null
+          data?: string
+          id?: string
+          nome?: string
+          regional?: boolean | null
+          uf?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "holidays_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_logs: {
+        Row: {
+          canal: Database["public"]["Enums"]["messaging_provider"]
+          created_at: string | null
+          data: string
+          enviado_em: string | null
+          erro: string | null
+          id: string
+          status: Database["public"]["Enums"]["message_status"] | null
+          template_id: string | null
+          user_id: string
+        }
+        Insert: {
+          canal: Database["public"]["Enums"]["messaging_provider"]
+          created_at?: string | null
+          data: string
+          enviado_em?: string | null
+          erro?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["message_status"] | null
+          template_id?: string | null
+          user_id: string
+        }
+        Update: {
+          canal?: Database["public"]["Enums"]["messaging_provider"]
+          created_at?: string | null
+          data?: string
+          enviado_em?: string | null
+          erro?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["message_status"] | null
+          template_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      policies: {
+        Row: {
+          banco_horas: boolean | null
+          company_id: string
+          contar_hora_extra: boolean | null
+          created_at: string | null
+          excedente_paga: boolean | null
+          gps_obrigatorio: boolean | null
+          id: string
+          ip_whitelist: string[] | null
+          selfie_obrigatoria: boolean | null
+          tolerancia_min: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          banco_horas?: boolean | null
+          company_id: string
+          contar_hora_extra?: boolean | null
+          created_at?: string | null
+          excedente_paga?: boolean | null
+          gps_obrigatorio?: boolean | null
+          id?: string
+          ip_whitelist?: string[] | null
+          selfie_obrigatoria?: boolean | null
+          tolerancia_min?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          banco_horas?: boolean | null
+          company_id?: string
+          contar_hora_extra?: boolean | null
+          created_at?: string | null
+          excedente_paga?: boolean | null
+          gps_obrigatorio?: boolean | null
+          id?: string
+          ip_whitelist?: string[] | null
+          selfie_obrigatoria?: boolean | null
+          tolerancia_min?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "policies_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          company_id: string
+          created_at: string | null
+          email: string
+          id: string
+          nome: string
+          role: Database["public"]["Enums"]["user_role"] | null
+          status: string | null
+          telefone: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string | null
+          email: string
+          id?: string
+          nome: string
+          role?: Database["public"]["Enums"]["user_role"] | null
+          status?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string | null
+          email?: string
+          id?: string
+          nome?: string
+          role?: Database["public"]["Enums"]["user_role"] | null
+          status?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      requests: {
+        Row: {
+          created_at: string | null
+          data_ref: string | null
+          id: string
+          motivo_admin: string | null
+          payload: Json | null
+          status: Database["public"]["Enums"]["request_status"] | null
+          tipo: Database["public"]["Enums"]["request_type"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          data_ref?: string | null
+          id?: string
+          motivo_admin?: string | null
+          payload?: Json | null
+          status?: Database["public"]["Enums"]["request_status"] | null
+          tipo: Database["public"]["Enums"]["request_type"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          data_ref?: string | null
+          id?: string
+          motivo_admin?: string | null
+          payload?: Json | null
+          status?: Database["public"]["Enums"]["request_status"] | null
+          tipo?: Database["public"]["Enums"]["request_type"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedules: {
+        Row: {
+          created_at: string | null
+          data: string
+          id: string
+          localizacao_obrigatoria: boolean | null
+          observacao: string | null
+          remoto: boolean | null
+          shift_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          data: string
+          id?: string
+          localizacao_obrigatoria?: boolean | null
+          observacao?: string | null
+          remoto?: boolean | null
+          shift_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: string
+          id?: string
+          localizacao_obrigatoria?: boolean | null
+          observacao?: string | null
+          remoto?: boolean | null
+          shift_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedules_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "shifts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedules_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shifts: {
+        Row: {
+          company_id: string
+          created_at: string | null
+          dias_semana: number[] | null
+          hora_fim: string
+          hora_inicio: string
+          id: string
+          intervalo_minutos: number | null
+          nome_turno: string
+          policy_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string | null
+          dias_semana?: number[] | null
+          hora_fim: string
+          hora_inicio: string
+          id?: string
+          intervalo_minutos?: number | null
+          nome_turno: string
+          policy_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string | null
+          dias_semana?: number[] | null
+          hora_fim?: string
+          hora_inicio?: string
+          id?: string
+          intervalo_minutos?: number | null
+          nome_turno?: string
+          policy_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shifts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shifts_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "policies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      time_entries: {
+        Row: {
+          created_at: string | null
+          data: string
+          gps_lat: number | null
+          gps_lng: number | null
+          id: string
+          ip: unknown | null
+          motivo_invalidez: string | null
+          origem: Database["public"]["Enums"]["entry_origin"] | null
+          selfie_url: string | null
+          timestamp: string
+          tipo: Database["public"]["Enums"]["time_entry_type"]
+          updated_at: string | null
+          user_id: string
+          valido: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          data: string
+          gps_lat?: number | null
+          gps_lng?: number | null
+          id?: string
+          ip?: unknown | null
+          motivo_invalidez?: string | null
+          origem?: Database["public"]["Enums"]["entry_origin"] | null
+          selfie_url?: string | null
+          timestamp: string
+          tipo: Database["public"]["Enums"]["time_entry_type"]
+          updated_at?: string | null
+          user_id: string
+          valido?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          data?: string
+          gps_lat?: number | null
+          gps_lng?: number | null
+          id?: string
+          ip?: unknown | null
+          motivo_invalidez?: string | null
+          origem?: Database["public"]["Enums"]["entry_origin"] | null
+          selfie_url?: string | null
+          timestamp?: string
+          tipo?: Database["public"]["Enums"]["time_entry_type"]
+          updated_at?: string | null
+          user_id?: string
+          valido?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "time_entries_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +504,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      daily_status: "completo" | "incompleto" | "faltou"
+      entry_origin: "app" | "webhook" | "ajuste_admin"
+      message_status: "ok" | "falha"
+      messaging_provider: "whatsapp" | "sms" | "email"
+      request_status: "pendente" | "aprovado" | "negado"
+      request_type: "ajuste" | "abono" | "folga"
+      time_entry_type: "entrada" | "saida" | "pausa_inicio" | "pausa_fim"
+      user_role: "admin" | "collab"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +638,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      daily_status: ["completo", "incompleto", "faltou"],
+      entry_origin: ["app", "webhook", "ajuste_admin"],
+      message_status: ["ok", "falha"],
+      messaging_provider: ["whatsapp", "sms", "email"],
+      request_status: ["pendente", "aprovado", "negado"],
+      request_type: ["ajuste", "abono", "folga"],
+      time_entry_type: ["entrada", "saida", "pausa_inicio", "pausa_fim"],
+      user_role: ["admin", "collab"],
+    },
   },
 } as const
