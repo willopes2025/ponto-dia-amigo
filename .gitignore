@@ -22,3 +22,28 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment
+.env
+.env.*.local
+
+# Build/cache
+build/
+.vite/
+.eslintcache
+.turbo/
+.pnpm-store/
+
+# Package managers
+.bun
+bun.lockb
+
+# Deploy
+.vercel/
+.netlify/
+
+# Tests/coverage
+coverage/
+
+# Supabase
+supabase/.temp/
