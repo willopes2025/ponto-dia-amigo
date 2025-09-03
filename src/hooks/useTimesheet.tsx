@@ -197,11 +197,12 @@ export function useTimesheet() {
 
     if (!hasEntry) {
       nextAction = 'entrada';
-    } else if (!hasPausaInicio && todaySchedule?.shifts.intervalo_minutos > 0) {
+    } else if (!hasPausaInicio && isWorking && !isOnBreak) {
+      // Allow pause when working (regardless of scheduled break time)
       nextAction = 'pausa_inicio';
-    } else if (hasPausaInicio && !hasPausaFim) {
+    } else if (hasPausaInicio && !hasPausaFim && isOnBreak) {
       nextAction = 'pausa_fim';
-    } else if (!hasSaida) {
+    } else if (!isOnBreak && hasEntry && !hasSaida) {
       nextAction = 'saida';
     }
 
