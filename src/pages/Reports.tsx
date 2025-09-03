@@ -37,6 +37,15 @@ interface DailySummary {
   };
 }
 
+interface MonthlyReport {
+  employee_id: string;
+  employee_name: string;
+  total_hours: number;
+  total_days: number;
+  average_daily_hours: number;
+  status: string;
+}
+
 interface Employee {
   id: string;
   nome: string;
@@ -47,9 +56,10 @@ export default function Reports() {
   const { user } = useAuth();
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
   const [dailySummaries, setDailySummaries] = useState<DailySummary[]>([]);
+  const [monthlyReports, setMonthlyReports] = useState<MonthlyReport[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
-  const [reportType, setReportType] = useState<'entries' | 'summary'>('entries');
+  const [reportType, setReportType] = useState<'entries' | 'summary' | 'monthly'>('monthly');
   const [selectedEmployee, setSelectedEmployee] = useState('all');
   const [startDate, setStartDate] = useState(format(startOfMonth(new Date()), 'yyyy-MM-dd'));
   const [endDate, setEndDate] = useState(format(endOfMonth(new Date()), 'yyyy-MM-dd'));
@@ -88,8 +98,10 @@ export default function Reports() {
     try {
       if (reportType === 'entries') {
         await fetchTimeEntries();
-      } else {
+      } else if (reportType === 'summary') {
         await fetchDailySummaries();
+      } else if (reportType === 'monthly') {
+        await fetchMonthlyReports();
       }
       await calculateStats();
     } catch (error: any) {
@@ -149,6 +161,76 @@ export default function Reports() {
     }));
     
     setDailySummaries(typedSummaries);
+  };
+
+  const fetchMonthlyReports = async () => {
+    try {
+      let query = supabase
+        .from('daily_summaries')
+        .select(`
+          user_id,
+          horas_trabalhadas,
+          profiles!inner(nome, company_id)
+        `)
+        .gte('data', startDate)
+        .lte('data', endDate)
+        .not('horas_trabalhadas', 'is', null);
+
+      if (selectedEmployee !== 'all') {
+        query = query.eq('user_id', selectedEmployee);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+
+      // Group by employee and calculate totals
+      const employeeMap = new Map<string, {
+        employee_id: string;
+        employee_name: string;
+        total_minutes: number;
+        total_days: number;
+      }>();
+
+      data?.forEach(summary => {
+        const empId = summary.user_id;
+        const empName = summary.profiles.nome;
+        
+        if (!employeeMap.has(empId)) {
+          employeeMap.set(empId, {
+            employee_id: empId,
+            employee_name: empName,
+            total_minutes: 0,
+            total_days: 0
+          });
+        }
+
+        const emp = employeeMap.get(empId)!;
+        emp.total_days++;
+
+        if (summary.horas_trabalhadas && typeof summary.horas_trabalhadas === 'string') {
+          const match = summary.horas_trabalhadas.match(/(\d+):(\d+):(\d+)/);
+          if (match) {
+            const hours = parseInt(match[1]);
+            const minutes = parseInt(match[2]);
+            emp.total_minutes += (hours * 60) + minutes;
+          }
+        }
+      });
+
+      const monthlyData: MonthlyReport[] = Array.from(employeeMap.values()).map(emp => ({
+        employee_id: emp.employee_id,
+        employee_name: emp.employee_name,
+        total_hours: Math.round((emp.total_minutes / 60) * 100) / 100,
+        total_days: emp.total_days,
+        average_daily_hours: emp.total_days > 0 ? Math.round((emp.total_minutes / 60 / emp.total_days) * 100) / 100 : 0,
+        status: 'ativo'
+      }));
+
+      setMonthlyReports(monthlyData);
+    } catch (error) {
+      console.error('Error fetching monthly reports:', error);
+      throw error;
+    }
   };
 
   const calculateStats = async () => {
@@ -229,7 +311,19 @@ export default function Reports() {
   };
 
   const handleExport = () => {
-    const data = reportType === 'entries' ? timeEntries : dailySummaries;
+    let data: any[] = [];
+    let reportTypeName = '';
+    
+    if (reportType === 'entries') {
+      data = timeEntries;
+      reportTypeName = 'entries';
+    } else if (reportType === 'summary') {
+      data = dailySummaries;
+      reportTypeName = 'summary';
+    } else if (reportType === 'monthly') {
+      data = monthlyReports;
+      reportTypeName = 'monthly';
+    }
     
     if (data.length === 0) {
       toast({
@@ -256,7 +350,7 @@ export default function Reports() {
           entry.valido ? 'Válido' : 'Inválido'
         ].join(',') + '\n';
       });
-    } else {
+    } else if (reportType === 'summary') {
       headers = ['Colaborador', 'Data', 'Horas Trabalhadas', 'Horas Previstas', 'Status'];
       csv = headers.join(',') + '\n';
       
@@ -269,13 +363,25 @@ export default function Reports() {
           summary.status
         ].join(',') + '\n';
       });
+    } else if (reportType === 'monthly') {
+      headers = ['Colaborador', 'Horas Totais', 'Dias Trabalhados', 'Média Diária'];
+      csv = headers.join(',') + '\n';
+      
+      monthlyReports.forEach(report => {
+        csv += [
+          report.employee_name,
+          `${report.total_hours}h`,
+          report.total_days,
+          `${report.average_daily_hours}h`
+        ].join(',') + '\n';
+      });
     }
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `relatorio_${reportType}_${startDate}_${endDate}.csv`);
+    link.setAttribute('download', `relatorio_${reportTypeName}_${startDate}_${endDate}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -376,11 +482,12 @@ export default function Reports() {
         <CardContent className="grid gap-4 md:grid-cols-5">
           <div className="space-y-2">
             <Label>Tipo de Relatório</Label>
-            <Select value={reportType} onValueChange={(value: 'entries' | 'summary') => setReportType(value)}>
+            <Select value={reportType} onValueChange={(value: 'entries' | 'summary' | 'monthly') => setReportType(value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="monthly">Resumo Mensal</SelectItem>
                 <SelectItem value="entries">Registros de Ponto</SelectItem>
                 <SelectItem value="summary">Resumo Diário</SelectItem>
               </SelectContent>
@@ -434,12 +541,16 @@ export default function Reports() {
       <Card>
         <CardHeader>
           <CardTitle>
-            {reportType === 'entries' ? 'Registros de Ponto' : 'Resumo Diário'}
+            {reportType === 'entries' ? 'Registros de Ponto' : 
+             reportType === 'summary' ? 'Resumo Diário' : 
+             'Resumo Mensal por Colaborador'}
           </CardTitle>
           <CardDescription>
             {reportType === 'entries' 
               ? 'Todos os registros de entrada e saída no período'
-              : 'Resumo das horas trabalhadas por dia'
+              : reportType === 'summary'
+              ? 'Resumo das horas trabalhadas por dia'
+              : 'Horas totais trabalhadas por cada colaborador no período'
             }
           </CardDescription>
         </CardHeader>
@@ -455,18 +566,26 @@ export default function Reports() {
                       <TableHead>Tipo</TableHead>
                       <TableHead>Status</TableHead>
                     </>
-                  ) : (
+                  ) : reportType === 'summary' ? (
                     <>
                       <TableHead>Data</TableHead>
                       <TableHead>Horas Trabalhadas</TableHead>
                       <TableHead>Horas Previstas</TableHead>
                       <TableHead>Status</TableHead>
                     </>
+                  ) : (
+                    <>
+                      <TableHead>Horas Totais</TableHead>
+                      <TableHead>Dias Trabalhados</TableHead>
+                      <TableHead>Média Diária</TableHead>
+                    </>
                   )}
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {(reportType === 'entries' ? timeEntries : dailySummaries).length === 0 ? (
+                {(reportType === 'entries' ? timeEntries : 
+                  reportType === 'summary' ? dailySummaries : 
+                  monthlyReports).length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                       Nenhum dado encontrado para o período selecionado
@@ -491,7 +610,7 @@ export default function Reports() {
                       </TableCell>
                     </TableRow>
                   ))
-                ) : (
+                ) : reportType === 'summary' ? (
                   dailySummaries.map((summary) => (
                     <TableRow key={summary.id}>
                       <TableCell className="font-medium">
@@ -505,6 +624,21 @@ export default function Reports() {
                           {summary.status === 'completo' ? 'Completo' : 'Incompleto'}
                         </Badge>
                       </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  monthlyReports.map((report) => (
+                    <TableRow key={report.employee_id}>
+                      <TableCell className="font-medium">
+                        {report.employee_name}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="default">
+                          {report.total_hours}h
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{report.total_days} dias</TableCell>
+                      <TableCell>{report.average_daily_hours}h</TableCell>
                     </TableRow>
                   ))
                 )}
