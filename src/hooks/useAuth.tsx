@@ -40,9 +40,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (emailOrUsername: string, password: string) => {
+    let loginEmail = emailOrUsername;
+    
+    // If doesn't contain @, assume it's a username and convert to temporary email
+    if (!emailOrUsername.includes('@')) {
+      // First try to find the user by username in profiles
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('username', emailOrUsername)
+        .single();
+      
+      if (profile && profile.email) {
+        loginEmail = profile.email;
+      } else {
+        // Fallback to temporary email format
+        loginEmail = `${emailOrUsername}@temp.local`;
+      }
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: loginEmail,
       password,
     });
 

@@ -114,10 +114,10 @@ export default function Employees() {
           status: 'ativo'
         };
 
-        // If using username, update the profile with username and clear email
+        // If using username, update the profile with username and keep temporary email
         if (employeeData.useUsername) {
           profileUpdateData.username = employeeData.username;
-          profileUpdateData.email = ''; // Clear the temporary email
+          profileUpdateData.email = emailForAuth; // Keep the temporary email for auth
         }
 
         const { error: profileError } = await supabase
