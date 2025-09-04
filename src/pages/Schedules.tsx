@@ -289,6 +289,28 @@ export default function Schedules() {
                 />
               </div>
 
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="remoto"
+                  checked={formData.remoto}
+                  onChange={(e) => setFormData(prev => ({ ...prev, remoto: e.target.checked }))}
+                  className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                />
+                <Label htmlFor="remoto">Trabalho remoto</Label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="localizacao_obrigatoria"
+                  checked={formData.localizacao_obrigatoria}
+                  onChange={(e) => setFormData(prev => ({ ...prev, localizacao_obrigatoria: e.target.checked }))}
+                  className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                />
+                <Label htmlFor="localizacao_obrigatoria">Exigir localização</Label>
+              </div>
+
               <div className="flex justify-end space-x-2 pt-4">
                 <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                   Cancelar
@@ -387,6 +409,7 @@ export default function Schedules() {
                   <TableHead>Data</TableHead>
                   <TableHead>Turno</TableHead>
                   <TableHead>Horário</TableHead>
+                  <TableHead>Tipo</TableHead>
                   <TableHead>Observação</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
@@ -394,7 +417,7 @@ export default function Schedules() {
               <TableBody>
                 {filteredSchedules.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                       Nenhuma escala encontrada
                     </TableCell>
                   </TableRow>
@@ -412,6 +435,20 @@ export default function Schedules() {
                       </TableCell>
                       <TableCell>
                         {formatTime(schedule.shifts.hora_inicio)} - {formatTime(schedule.shifts.hora_fim)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          {schedule.remoto && (
+                            <Badge variant="secondary" className="text-xs">
+                              Remoto
+                            </Badge>
+                          )}
+                          {schedule.localizacao_obrigatoria && (
+                            <Badge variant="outline" className="text-xs">
+                              GPS
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>{schedule.observacao || '-'}</TableCell>
                       <TableCell className="text-right">

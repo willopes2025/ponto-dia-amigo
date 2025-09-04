@@ -245,6 +245,12 @@ export function useTimesheet() {
         throw new Error('Perfil do usuário não encontrado');
       }
 
+      // Check if location is required but not provided
+      const requiresLocation = todaySchedule?.localizacao_obrigatoria && !todaySchedule?.remoto;
+      if (requiresLocation && (!coordinates || !coordinates.latitude || !coordinates.longitude)) {
+        throw new Error('Localização é obrigatória para registrar o ponto neste turno');
+      }
+
       const now = new Date();
       const today = now.toISOString().split('T')[0];
 
