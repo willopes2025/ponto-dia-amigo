@@ -540,6 +540,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_daily_summary: {
+        Args: { p_date: string; p_user_id: string }
+        Returns: undefined
+      }
+      generate_missing_daily_summaries: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_user_company_id: {
         Args: Record<PropertyKey, never>
         Returns: string
