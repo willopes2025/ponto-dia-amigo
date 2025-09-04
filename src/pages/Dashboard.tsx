@@ -48,10 +48,15 @@ export default function Dashboard() {
   useEffect(() => {
     if (user) {
       fetchUserProfile();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (userProfile) {
       fetchStats();
       fetchRecentActivity();
     }
-  }, [user]);
+  }, [userProfile]);
 
   const fetchUserProfile = async () => {
     try {
