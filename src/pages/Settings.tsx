@@ -69,12 +69,13 @@ export default function Settings() {
   const fetchSettings = async () => {
     try {
       // Get user's company
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('company_id')
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle();
 
+      if (profileError) throw profileError;
       if (!profile) throw new Error('Perfil não encontrado');
 
       // Get company settings
@@ -82,19 +83,42 @@ export default function Settings() {
         .from('companies')
         .select('*')
         .eq('id', profile.company_id)
-        .single();
+        .maybeSingle();
 
       if (companyError) throw companyError;
+      if (!company) throw new Error('Empresa não encontrada');
       setCompanySettings(company);
 
-      // Get policy settings
-      const { data: policy, error: policyError } = await supabase
+      // Get policy settings - create if doesn't exist
+      let { data: policy, error: policyError } = await supabase
         .from('policies')
         .select('*')
         .eq('company_id', profile.company_id)
-        .single();
+        .maybeSingle();
 
       if (policyError) throw policyError;
+      
+      // If no policy exists, create default one
+      if (!policy) {
+        const { data: newPolicy, error: createError } = await supabase
+          .from('policies')
+          .insert({
+            company_id: profile.company_id,
+            tolerancia_min: 5,
+            contar_hora_extra: false,
+            excedente_paga: false,
+            banco_horas: false,
+            selfie_obrigatoria: false,
+            gps_obrigatorio: false,
+            ip_whitelist: []
+          })
+          .select('*')
+          .single();
+
+        if (createError) throw createError;
+        policy = newPolicy;
+      }
+      
       setPolicySettings(policy);
       setIpWhitelist(policy.ip_whitelist?.join('\n') || '');
 
@@ -109,6 +133,7 @@ export default function Settings() {
       setShifts(shiftsData || []);
 
     } catch (error: any) {
+      console.error('Settings fetch error:', error);
       toast({
         title: "Erro ao carregar configurações",
         description: error.message,
@@ -200,12 +225,13 @@ export default function Settings() {
     }
 
     try {
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('company_id')
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle();
 
+      if (profileError) throw profileError;
       if (!profile) throw new Error('Perfil não encontrado');
 
       const { error } = await supabase
