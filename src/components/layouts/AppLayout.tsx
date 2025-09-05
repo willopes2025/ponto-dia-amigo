@@ -59,7 +59,7 @@ export function AppLayout() {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/auth');
+    navigate('/');
   };
 
   return (
