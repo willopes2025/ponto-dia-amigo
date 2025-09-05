@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Edit, Trash2, UserCheck, UserX, Filter } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, UserCheck, UserX, Filter, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +20,12 @@ interface Employee {
   status: 'ativo' | 'inativo';
   created_at: string;
   user_id: string;
+  shift_id?: string;
+  shifts?: {
+    nome_turno: string;
+    hora_inicio: string;
+    hora_fim: string;
+  };
 }
 
 interface Shift {
@@ -49,7 +55,14 @@ export default function Employees() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select(`
+          *,
+          shifts (
+            nome_turno,
+            hora_inicio,
+            hora_fim
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -108,10 +121,11 @@ export default function Employees() {
       if (authError) throw authError;
 
       if (authData.user) {
-        // Update the profile with additional data
+        // Update the profile with additional data including shift
         const profileUpdateData: any = {
           telefone: employeeData.telefone,
-          status: 'ativo'
+          status: 'ativo',
+          shift_id: employeeData.shiftId || null
         };
 
         // If using username, update the profile with username and keep temporary email
@@ -183,7 +197,8 @@ export default function Employees() {
           nome: employeeData.nome,
           email: employeeData.email,
           telefone: employeeData.telefone,
-          status: employeeData.status
+          status: employeeData.status,
+          shift_id: employeeData.shiftId || null
         })
         .eq('id', editingEmployee.id);
 
@@ -312,7 +327,7 @@ export default function Employees() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total</CardTitle>
@@ -331,6 +346,19 @@ export default function Employees() {
           <CardContent>
             <div className="text-2xl font-bold text-success">{activeEmployees}</div>
             <p className="text-xs text-muted-foreground">em atividade</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Com Turno</CardTitle>
+            <Clock className="h-4 w-4 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-primary">
+              {employees.filter(emp => emp.shifts).length}
+            </div>
+            <p className="text-xs text-muted-foreground">turno definido</p>
           </CardContent>
         </Card>
       </div>
@@ -378,6 +406,7 @@ export default function Employees() {
                   <TableHead>Nome</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Telefone</TableHead>
+                  <TableHead>Turno</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
@@ -385,7 +414,7 @@ export default function Employees() {
               <TableBody>
                 {filteredEmployees.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                       Nenhum colaborador encontrado
                     </TableCell>
                   </TableRow>
@@ -395,6 +424,18 @@ export default function Employees() {
                       <TableCell className="font-medium">{employee.nome}</TableCell>
                       <TableCell>{employee.email}</TableCell>
                       <TableCell>{employee.telefone || '-'}</TableCell>
+                      <TableCell>
+                        {employee.shifts ? (
+                          <div className="text-sm">
+                            <div className="font-medium">{employee.shifts.nome_turno}</div>
+                            <div className="text-muted-foreground">
+                              {employee.shifts.hora_inicio} - {employee.shifts.hora_fim}
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">Sem turno</span>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Badge 
                           variant={employee.status === 'ativo' ? 'default' : 'destructive'}

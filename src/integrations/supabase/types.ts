@@ -287,6 +287,7 @@ export type Database = {
           email: string
           id: string
           nome: string
+          shift_id: string | null
           status: string | null
           telefone: string | null
           updated_at: string | null
@@ -299,6 +300,7 @@ export type Database = {
           email: string
           id?: string
           nome: string
+          shift_id?: string | null
           status?: string | null
           telefone?: string | null
           updated_at?: string | null
@@ -311,6 +313,7 @@ export type Database = {
           email?: string
           id?: string
           nome?: string
+          shift_id?: string | null
           status?: string | null
           telefone?: string | null
           updated_at?: string | null
@@ -323,6 +326,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "shifts"
             referencedColumns: ["id"]
           },
         ]

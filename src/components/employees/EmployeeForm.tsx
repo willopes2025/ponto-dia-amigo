@@ -12,6 +12,7 @@ interface Employee {
   username?: string;
   telefone?: string;
   status: 'ativo' | 'inativo';
+  shift_id?: string;
 }
 
 interface Shift {
@@ -37,7 +38,7 @@ export function EmployeeForm({ employee, shifts, onSubmit, onCancel, isEditing =
     telefone: employee?.telefone || '',
     status: employee?.status || 'ativo',
     password: '',
-    shiftId: '',
+    shiftId: employee?.shift_id || '',
     useUsername: false
   });
 
@@ -147,7 +148,7 @@ export function EmployeeForm({ employee, shifts, onSubmit, onCancel, isEditing =
         </div>
       )}
 
-      {shifts.length > 0 && !isEditing && (
+      {shifts.length > 0 && (
         <div className="space-y-2">
           <Label htmlFor="shift">Turno Padrão</Label>
           <Select value={formData.shiftId} onValueChange={(value) => handleInputChange('shiftId', value)}>
@@ -155,6 +156,7 @@ export function EmployeeForm({ employee, shifts, onSubmit, onCancel, isEditing =
               <SelectValue placeholder="Selecione um turno" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="">Nenhum turno</SelectItem>
               {shifts.map((shift) => (
                 <SelectItem key={shift.id} value={shift.id}>
                   {shift.nome_turno} ({shift.hora_inicio} - {shift.hora_fim})
@@ -162,6 +164,9 @@ export function EmployeeForm({ employee, shifts, onSubmit, onCancel, isEditing =
               ))}
             </SelectContent>
           </Select>
+          <p className="text-xs text-muted-foreground">
+            Turno padrão usado para escalas automáticas
+          </p>
         </div>
       )}
 
