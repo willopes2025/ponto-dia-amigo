@@ -1,16 +1,17 @@
 import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building2, Clock, Shield } from 'lucide-react';
+import { Building2, Clock, Shield, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function Auth() {
   const { signIn, signUp, signOut, user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Redirect if already authenticated
   if (user && !loading) {
@@ -60,6 +61,19 @@ export default function Auth() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        {/* Back button */}
+        <div className="mb-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/')}
+            className="flex items-center space-x-2 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Voltar</span>
+          </Button>
+        </div>
+
         {/* Logo and branding */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-2 mb-4">
