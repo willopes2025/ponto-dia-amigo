@@ -31,6 +31,9 @@ const Index = () => {
             <span className="text-2xl font-bold text-foreground">Ponto Seguro</span>
           </div>
           <div className="flex items-center space-x-4">
+            <Button variant="ghost" onClick={() => navigate('/features')}>
+              Funcionalidades
+            </Button>
             {user ? (
               <Button onClick={() => navigate('/dashboard')}>Dashboard</Button>
             ) : (
@@ -62,8 +65,8 @@ const Index = () => {
             <Button size="lg" onClick={handleGetStarted} className="text-lg px-8 py-4">
               Começar Gratuitamente
             </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8 py-4">
-              Ver Demonstração
+            <Button size="lg" variant="outline" onClick={() => navigate('/features')} className="text-lg px-8 py-4">
+              Ver Funcionalidades
             </Button>
           </div>
           <div className="flex items-center justify-center mt-8 space-x-1">
@@ -309,8 +312,8 @@ const Index = () => {
             <div>
               <h4 className="font-semibold text-foreground mb-4">Produto</h4>
               <ul className="space-y-2 text-muted-foreground">
-                <li><a href="#" className="hover:text-primary">Funcionalidades</a></li>
-                <li><a href="#" className="hover:text-primary">Preços</a></li>
+                <li><a href="/features" className="hover:text-primary">Funcionalidades</a></li>
+                <li><a href="#precos" className="hover:text-primary">Preços</a></li>
                 <li><a href="#" className="hover:text-primary">Integrações</a></li>
                 <li><a href="#" className="hover:text-primary">API</a></li>
               </ul>

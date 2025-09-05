@@ -8,6 +8,7 @@ import { AppLayout } from "@/components/layouts/AppLayout";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import Features from "./pages/Features";
 import Dashboard from "./pages/Dashboard";
 import Timesheet from "./pages/Timesheet";
 import Employees from "./pages/Employees";
@@ -29,6 +30,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/features" element={<Features />} />
             <Route element={
               <ProtectedRoute>
                 <AppLayout />
