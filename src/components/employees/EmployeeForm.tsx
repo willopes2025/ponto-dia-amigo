@@ -63,7 +63,7 @@ export function EmployeeForm({ employee, shifts, onSubmit, onCancel, isEditing =
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4 animate-fade-in">
       <div className="space-y-2">
         <Label htmlFor="nome">Nome Completo</Label>
         <Input
@@ -72,6 +72,7 @@ export function EmployeeForm({ employee, shifts, onSubmit, onCancel, isEditing =
           onChange={(e) => handleInputChange('nome', e.target.value)}
           placeholder="João Silva"
           required
+          className="transition-all duration-200 focus:ring-2"
         />
       </div>
 
@@ -181,10 +182,10 @@ export function EmployeeForm({ employee, shifts, onSubmit, onCancel, isEditing =
       )}
 
       <div className="flex justify-end space-x-2 pt-4">
-        <Button type="button" variant="outline" onClick={onCancel}>
+        <Button type="button" variant="outline" onClick={onCancel} className="animate-hover-scale">
           Cancelar
         </Button>
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" disabled={isSubmitting} className="animate-hover-scale">
           {isSubmitting ? 'Salvando...' : isEditing ? 'Atualizar' : 'Criar'}
         </Button>
       </div>

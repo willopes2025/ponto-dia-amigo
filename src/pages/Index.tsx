@@ -52,24 +52,24 @@ const Index = () => {
 
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-20 text-center">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl font-bold text-foreground mb-6">
+        <div className="max-w-4xl mx-auto animate-fade-in">
+          <h1 className="text-5xl font-bold text-foreground mb-6 animate-slide-in-up">
             Controle de Ponto
             <span className="text-primary"> Inteligente</span>
           </h1>
-          <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+          <p className="text-xl text-muted-foreground mb-8 leading-relaxed animate-fade-in-delayed">
             Gerencie o tempo da sua equipe de forma eficiente com relatórios automáticos, 
             controle de jornada e integração completa para pequenas e médias empresas.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" onClick={handleGetStarted} className="text-lg px-8 py-4">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-in-up" style={{animationDelay: '0.3s'}}>
+            <Button size="lg" onClick={handleGetStarted} className="text-lg px-8 py-4 animate-hover-scale">
               Começar Gratuitamente
             </Button>
-            <Button size="lg" variant="outline" onClick={() => navigate('/features')} className="text-lg px-8 py-4">
+            <Button size="lg" variant="outline" onClick={() => navigate('/features')} className="text-lg px-8 py-4 animate-hover-scale">
               Ver Funcionalidades
             </Button>
           </div>
-          <div className="flex items-center justify-center mt-8 space-x-1">
+          <div className="flex items-center justify-center mt-8 space-x-1 animate-fade-in" style={{animationDelay: '0.5s'}}>
             {[...Array(5)].map((_, i) => (
               <Star key={i} className="h-5 w-5 text-warning fill-current" />
             ))}
@@ -90,7 +90,7 @@ const Index = () => {
         </div>
         
         <div className="grid md:grid-cols-3 gap-8 mb-16">
-          <Card className="text-center p-6">
+          <Card className="text-center p-6 animate-fade-in stagger-item animate-hover-lift">
             <CardHeader>
               <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit">
                 <Clock className="h-8 w-8 text-primary" />
@@ -104,7 +104,7 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          <Card className="text-center p-6">
+          <Card className="text-center p-6 animate-fade-in stagger-item animate-hover-lift">
             <CardHeader>
               <div className="mx-auto mb-4 p-3 bg-accent/10 rounded-full w-fit">
                 <Users className="h-8 w-8 text-accent" />
@@ -118,7 +118,7 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          <Card className="text-center p-6">
+          <Card className="text-center p-6 animate-fade-in stagger-item animate-hover-lift">
             <CardHeader>
               <div className="mx-auto mb-4 p-3 bg-info/10 rounded-full w-fit">
                 <BarChart3 className="h-8 w-8 text-info" />
@@ -134,8 +134,8 @@ const Index = () => {
         </div>
 
         {/* Benefits */}
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div>
+        <div className="grid md:grid-cols-2 gap-12 items-center animate-fade-in">
+          <div className="animate-slide-in-left">
             <h3 className="text-3xl font-bold text-foreground mb-6">
               Por que escolher o Ponto Seguro?
             </h3>
@@ -148,14 +148,14 @@ const Index = () => {
                 'Dados seguros e criptografados',
                 'Integração com sistemas de RH'
               ].map((benefit, index) => (
-                <div key={index} className="flex items-center space-x-3">
+                <div key={index} className="flex items-center space-x-3 animate-fade-in stagger-item">
                   <CheckCircle className="h-5 w-5 text-success" />
                   <span className="text-foreground">{benefit}</span>
                 </div>
               ))}
             </div>
           </div>
-          <div className="bg-gradient-to-br from-primary/10 to-accent/10 p-8 rounded-2xl">
+          <div className="bg-gradient-to-br from-primary/10 to-accent/10 p-8 rounded-2xl animate-slide-in-up">
             <div className="text-center">
               <h4 className="text-2xl font-bold text-foreground mb-4">
                 Teste Grátis por 14 Dias
@@ -163,7 +163,7 @@ const Index = () => {
               <p className="text-muted-foreground mb-6">
                 Sem compromisso, sem cartão de crédito
               </p>
-              <Button size="lg" onClick={handleGetStarted} className="w-full">
+              <Button size="lg" onClick={handleGetStarted} className="w-full animate-hover-scale">
                 Começar Teste Gratuito
               </Button>
             </div>
@@ -184,7 +184,7 @@ const Index = () => {
 
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {/* Básico */}
-          <Card className="relative">
+          <Card className="relative animate-fade-in stagger-item animate-hover-lift">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl">Básico</CardTitle>
               <CardDescription>Para pequenas empresas</CardDescription>
@@ -210,15 +210,15 @@ const Index = () => {
                 <CheckCircle className="h-4 w-4 text-success" />
                 <span>Suporte por email</span>
               </div>
-              <Button className="w-full mt-6" variant="outline" onClick={handleGetStarted}>
+              <Button className="w-full mt-6 animate-hover-scale" variant="outline" onClick={handleGetStarted}>
                 Escolher Básico
               </Button>
             </CardContent>
           </Card>
 
           {/* Profissional */}
-          <Card className="relative border-primary shadow-lg scale-105">
-            <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary">
+          <Card className="relative border-primary shadow-lg scale-105 animate-fade-in stagger-item animate-hover-lift">
+            <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary animate-pulse">
               Mais Popular
             </Badge>
             <CardHeader className="text-center">
@@ -250,14 +250,14 @@ const Index = () => {
                 <CheckCircle className="h-4 w-4 text-success" />
                 <span>Suporte prioritário</span>
               </div>
-              <Button className="w-full mt-6" onClick={handleGetStarted}>
+              <Button className="w-full mt-6 animate-hover-scale" onClick={handleGetStarted}>
                 Escolher Profissional
               </Button>
             </CardContent>
           </Card>
 
           {/* Enterprise */}
-          <Card className="relative">
+          <Card className="relative animate-fade-in stagger-item animate-hover-lift">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl">Enterprise</CardTitle>
               <CardDescription>Para grandes empresas</CardDescription>
@@ -287,7 +287,7 @@ const Index = () => {
                 <CheckCircle className="h-4 w-4 text-success" />
                 <span>SLA garantido</span>
               </div>
-              <Button className="w-full mt-6" variant="outline" onClick={handleGetStarted}>
+              <Button className="w-full mt-6 animate-hover-scale" variant="outline" onClick={handleGetStarted}>
                 Falar com Vendas
               </Button>
             </CardContent>

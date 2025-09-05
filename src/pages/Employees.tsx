@@ -305,12 +305,12 @@ export default function Employees() {
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="animate-hover-scale">
               <Plus className="h-4 w-4 mr-2" />
               Novo Colaborador
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md animate-scale-in">
             <DialogHeader>
               <DialogTitle>Novo Colaborador</DialogTitle>
               <DialogDescription>
@@ -327,8 +327,8 @@ export default function Employees() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+      <div className="grid gap-4 md:grid-cols-3 animate-fade-in">
+        <Card className="animate-hover-lift stagger-item">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total</CardTitle>
           </CardHeader>
@@ -338,7 +338,7 @@ export default function Employees() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="animate-hover-lift stagger-item">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Ativos</CardTitle>
             <UserCheck className="h-4 w-4 text-success" />
@@ -349,7 +349,7 @@ export default function Employees() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="animate-hover-lift stagger-item">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Com Turno</CardTitle>
             <Clock className="h-4 w-4 text-primary" />
@@ -364,7 +364,7 @@ export default function Employees() {
       </div>
 
       {/* Search and Filters */}
-      <Card>
+      <Card className="animate-fade-in">
         <CardHeader>
           <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
             <div className="flex-1">
@@ -374,7 +374,7 @@ export default function Employees() {
                   placeholder="Buscar por nome ou email..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 transition-all duration-200 focus:ring-2"
                 />
               </div>
             </div>
@@ -383,6 +383,7 @@ export default function Employees() {
                 variant="outline"
                 size="sm"
                 onClick={() => setShowFilters(!showFilters)}
+                className="animate-hover-scale"
               >
                 <Filter className="h-4 w-4 mr-2" />
                 Filtros
@@ -391,10 +392,12 @@ export default function Employees() {
           </div>
           
           {showFilters && (
-            <EmployeeFilters
-              statusFilter={statusFilter}
-              onStatusChange={setStatusFilter}
-            />
+            <div className="animate-slide-in-up">
+              <EmployeeFilters
+                statusFilter={statusFilter}
+                onStatusChange={setStatusFilter}
+              />
+            </div>
           )}
         </CardHeader>
 

@@ -60,14 +60,14 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md animate-scale-in">
         {/* Back button */}
-        <div className="mb-4">
+        <div className="mb-4 animate-fade-in">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate('/')}
-            className="flex items-center space-x-2 text-muted-foreground hover:text-foreground"
+            className="flex items-center space-x-2 text-muted-foreground hover:text-foreground animate-hover-scale"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>Voltar</span>
@@ -75,7 +75,7 @@ export default function Auth() {
         </div>
 
         {/* Logo and branding */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 animate-slide-in-up">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Building2 className="h-12 w-12 text-primary" />
             <Clock className="h-8 w-8 text-accent" />
@@ -87,11 +87,11 @@ export default function Auth() {
           </p>
         </div>
 
-        <Card>
+        <Card className="animate-fade-in-delayed">
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="signin">Entrar</TabsTrigger>
-              <TabsTrigger value="signup">Cadastrar Empresa</TabsTrigger>
+              <TabsTrigger value="signin" className="animate-hover-scale">Entrar</TabsTrigger>
+              <TabsTrigger value="signup" className="animate-hover-scale">Cadastrar Empresa</TabsTrigger>
             </TabsList>
 
             <TabsContent value="signin">
@@ -126,7 +126,7 @@ export default function Auth() {
                 <CardFooter>
                   <Button 
                     type="submit" 
-                    className="w-full" 
+                    className="w-full animate-hover-scale" 
                     disabled={isLoading}
                   >
                     {isLoading ? "Entrando..." : "Entrar"}
@@ -187,7 +187,7 @@ export default function Auth() {
                 <CardFooter>
                   <Button 
                     type="submit" 
-                    className="w-full" 
+                    className="w-full animate-hover-scale" 
                     disabled={isLoading}
                   >
                     {isLoading ? "Criando conta..." : "Criar Conta da Empresa"}

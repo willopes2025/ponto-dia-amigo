@@ -170,8 +170,8 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="space-y-6 animate-fade-in">
+      <div className="animate-slide-in-up">
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
         <p className="text-muted-foreground">
           Visão geral do controle de ponto da sua empresa
@@ -179,8 +179,8 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 animate-fade-in">
+        <Card className="animate-hover-lift stagger-item">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Total de Colaboradores
@@ -195,7 +195,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="animate-hover-lift stagger-item">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Colaboradores Ativos
@@ -210,7 +210,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="animate-hover-lift stagger-item">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Registros Hoje
@@ -225,7 +225,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="animate-hover-lift stagger-item">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Atrasos Hoje
@@ -241,9 +241,9 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2 animate-slide-in-up">
         {/* Recent Activity */}
-        <Card>
+        <Card className="animate-hover-lift">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Calendar className="h-5 w-5" />
@@ -254,8 +254,8 @@ export default function Dashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {recentActivity.length > 0 ? recentActivity.map((activity) => (
-              <div key={activity.id} className="flex items-center justify-between">
+            {recentActivity.length > 0 ? recentActivity.map((activity, index) => (
+              <div key={activity.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors animate-fade-in stagger-item">
                 <div className="flex items-center space-x-3">
                   <div className={`h-2 w-2 rounded-full ${
                     activity.status === 'on-time' ? 'bg-success' : 'bg-warning'
@@ -284,7 +284,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Quick Actions */}
-        <Card>
+        <Card className="animate-hover-lift">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <CheckCircle className="h-5 w-5" />
@@ -295,7 +295,7 @@ export default function Dashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-muted rounded-lg animate-fade-in stagger-item animate-hover-scale cursor-pointer">
               <div>
                 <p className="text-sm font-medium">Gerenciar Localizações</p>
                 <p className="text-xs text-muted-foreground">Definir locais de trabalho</p>
@@ -305,7 +305,7 @@ export default function Dashboard() {
               </Badge>
             </div>
             
-            <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-muted rounded-lg animate-fade-in stagger-item animate-hover-scale cursor-pointer">
               <div>
                 <p className="text-sm font-medium">Revisar Solicitações</p>
                 <p className="text-xs text-muted-foreground">Pendências para análise</p>
@@ -313,7 +313,7 @@ export default function Dashboard() {
               <Badge variant="outline">0</Badge>
             </div>
             
-            <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-muted rounded-lg animate-fade-in stagger-item animate-hover-scale cursor-pointer">
               <div>
                 <p className="text-sm font-medium">Relatórios</p>
                 <p className="text-xs text-muted-foreground">Gerar relatórios do período</p>
