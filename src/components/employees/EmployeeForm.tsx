@@ -153,10 +153,9 @@ export function EmployeeForm({ employee, shifts, onSubmit, onCancel, isEditing =
           <Label htmlFor="shift">Turno Padrão</Label>
           <Select value={formData.shiftId} onValueChange={(value) => handleInputChange('shiftId', value)}>
             <SelectTrigger>
-              <SelectValue placeholder="Selecione um turno" />
+              <SelectValue placeholder="Selecione um turno (opcional)" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Nenhum turno</SelectItem>
               {shifts.map((shift) => (
                 <SelectItem key={shift.id} value={shift.id}>
                   {shift.nome_turno} ({shift.hora_inicio} - {shift.hora_fim})
