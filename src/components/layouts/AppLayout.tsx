@@ -10,9 +10,11 @@ import {
   Menu,
   X,
   Building2,
-  MapPin
+  MapPin,
+  Shield
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
@@ -29,33 +31,8 @@ const navigation = [
 
 export function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { signOut, user } = useAuth();
+  const { signOut, user, userProfile, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [userProfile, setUserProfile] = useState<any>(null);
-
-  useEffect(() => {
-    if (user) {
-      fetchUserProfile();
-    }
-  }, [user]);
-
-  const fetchUserProfile = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('nome')
-        .eq('user_id', user?.id)
-        .single();
-
-      if (error) throw error;
-      
-      setUserProfile(data);
-      setIsAdmin(true); // Todos são admin agora
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-    }
-  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -114,6 +91,12 @@ export function AppLayout() {
               <span className="text-sm text-muted-foreground">
                 {userProfile?.nome || user?.email}
               </span>
+              {isAdmin && (
+                <Badge variant="default" className="text-xs animate-fade-in">
+                  <Shield className="h-3 w-3 mr-1" />
+                  Admin
+                </Badge>
+              )}
               <Button variant="ghost" size="sm" onClick={handleSignOut}>
                 <LogOut className="h-4 w-4" />
               </Button>

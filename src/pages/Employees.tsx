@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { EmployeeForm } from '@/components/employees/EmployeeForm';
 import { EmployeeFilters } from '@/components/employees/EmployeeFilters';
+import { RoleManager, RolePermissionsCard } from '@/components/employees/RoleManager';
 
 interface Employee {
   id: string;
@@ -326,6 +327,9 @@ export default function Employees() {
         </Dialog>
       </div>
 
+      {/* Role Permissions Card */}
+      <RolePermissionsCard className="mb-6" />
+
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-3 animate-fade-in">
         <Card className="animate-hover-lift stagger-item">
@@ -410,6 +414,7 @@ export default function Employees() {
                   <TableHead>Email</TableHead>
                   <TableHead>Telefone</TableHead>
                   <TableHead>Turno</TableHead>
+                  <TableHead>Cargo</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
@@ -417,7 +422,7 @@ export default function Employees() {
               <TableBody>
                 {filteredEmployees.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                       Nenhum colaborador encontrado
                     </TableCell>
                   </TableRow>
@@ -438,6 +443,12 @@ export default function Employees() {
                         ) : (
                           <span className="text-muted-foreground">Sem turno</span>
                         )}
+                      </TableCell>
+                      <TableCell>
+                        <RoleManager 
+                          employee={employee} 
+                          onRoleUpdate={fetchEmployees}
+                        />
                       </TableCell>
                       <TableCell>
                         <Badge 

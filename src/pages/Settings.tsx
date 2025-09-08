@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Shield, Clock, MapPin, Bell, Users } from 'lucide-react';
+import { Save, Shield, Clock, MapPin, Bell, Users, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -8,9 +8,11 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { supabase } from '@/integrations/supabase/client';
 
 interface CompanySettings {
   id: string;
@@ -44,7 +46,7 @@ interface Shift {
 }
 
 export default function Settings() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [companySettings, setCompanySettings] = useState<CompanySettings | null>(null);
@@ -311,13 +313,32 @@ export default function Settings() {
     );
   }
 
+  if (!isAdmin) {
+    return (
+      <div className="container mx-auto p-6">
+        <Alert className="animate-fade-in">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Apenas administradores podem acessar as configurações da empresa.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Configurações</h2>
-        <p className="text-muted-foreground">
-          Gerencie as configurações do sistema de controle de ponto
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Configurações</h2>
+          <p className="text-muted-foreground">
+            Gerencie as configurações do sistema de controle de ponto
+          </p>
+        </div>
+        <Badge variant="default" className="animate-fade-in">
+          <Shield className="h-3 w-3 mr-1" />
+          Área do Administrador
+        </Badge>
       </div>
 
       <Tabs defaultValue="company" className="w-full">
