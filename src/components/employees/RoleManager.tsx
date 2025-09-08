@@ -1,12 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Shield, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+
+interface Position {
+  id: string;
+  nome: string;
+  is_admin: boolean;
+}
 
 interface RoleManagerProps {
   employee: any;
@@ -15,8 +20,30 @@ interface RoleManagerProps {
 
 export function RoleManager({ employee, onRoleUpdate }: RoleManagerProps) {
   const [isUpdating, setIsUpdating] = useState(false);
+  const [positions, setPositions] = useState<Position[]>([]);
   const { toast } = useToast();
   const { isAdmin, userProfile } = useAuth();
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchPositions();
+    }
+  }, [isAdmin]);
+
+  const fetchPositions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('positions')
+        .select('id, nome, is_admin')
+        .eq('ativo', true)
+        .order('nome');
+
+      if (error) throw error;
+      setPositions(data || []);
+    } catch (error: any) {
+      console.error('Erro ao carregar cargos:', error);
+    }
+  };
 
   // Só admin pode gerenciar roles
   if (!isAdmin) return null;
@@ -24,7 +51,7 @@ export function RoleManager({ employee, onRoleUpdate }: RoleManagerProps) {
   // Admin não pode alterar seu próprio role
   const canChangeRole = employee.id !== userProfile?.id;
 
-  const handleRoleChange = async (newRole: 'admin' | 'user') => {
+  const handlePositionChange = async (newPositionId: string) => {
     if (!canChangeRole) return;
     
     setIsUpdating(true);
@@ -32,14 +59,16 @@ export function RoleManager({ employee, onRoleUpdate }: RoleManagerProps) {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ role: newRole })
+        .update({ position_id: newPositionId })
         .eq('id', employee.id);
 
       if (error) throw error;
 
+      const newPosition = positions.find(p => p.id === newPositionId);
+      
       toast({
         title: "Cargo atualizado",
-        description: `${employee.nome} agora é ${newRole === 'admin' ? 'Administrador' : 'Usuário'}`,
+        description: `${employee.nome} agora é ${newPosition?.nome}`,
       });
 
       onRoleUpdate?.();
@@ -54,49 +83,52 @@ export function RoleManager({ employee, onRoleUpdate }: RoleManagerProps) {
     }
   };
 
-  const getRoleBadge = (role: string) => {
-    if (role === 'admin') {
+  const getPositionBadge = (employee: any) => {
+    const position = employee.positions || employee.position;
+    if (!position) return null;
+    
+    if (position.is_admin) {
       return (
         <Badge variant="default" className="animate-fade-in">
           <Shield className="h-3 w-3 mr-1" />
-          Administrador
+          {position.nome}
         </Badge>
       );
     }
     return (
       <Badge variant="secondary" className="animate-fade-in">
         <User className="h-3 w-3 mr-1" />
-        Usuário
+        {position.nome}
       </Badge>
     );
   };
 
   return (
     <div className="flex items-center gap-2 animate-slide-in-right">
-      {getRoleBadge(employee.role)}
+      {getPositionBadge(employee)}
       
-      {canChangeRole && (
+      {canChangeRole && positions.length > 0 && (
         <Select
-          value={employee.role}
-          onValueChange={handleRoleChange}
+          value={employee.position_id || employee.positions?.id}
+          onValueChange={handlePositionChange}
           disabled={isUpdating}
         >
-          <SelectTrigger className="w-32 animate-hover-scale">
-            <SelectValue />
+          <SelectTrigger className="w-40 animate-hover-scale">
+            <SelectValue placeholder="Selecionar cargo" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="admin">
-              <div className="flex items-center">
-                <Shield className="h-3 w-3 mr-2" />
-                Admin
-              </div>
-            </SelectItem>
-            <SelectItem value="user">
-              <div className="flex items-center">
-                <User className="h-3 w-3 mr-2" />
-                Usuário
-              </div>
-            </SelectItem>
+            {positions.map((position) => (
+              <SelectItem key={position.id} value={position.id}>
+                <div className="flex items-center">
+                  {position.is_admin ? (
+                    <Shield className="h-3 w-3 mr-2" />
+                  ) : (
+                    <User className="h-3 w-3 mr-2" />
+                  )}
+                  {position.nome}
+                </div>
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       )}
@@ -128,34 +160,15 @@ export function RolePermissionsCard({ className }: RolePermissionsCardProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Badge variant="default">
-              <Shield className="h-3 w-3 mr-1" />
-              Administrador
-            </Badge>
-          </div>
-          <ul className="text-sm text-muted-foreground ml-4 space-y-1">
-            <li>• Configurações da empresa</li>
-            <li>• Gerenciar colaboradores</li>
-            <li>• Criar e alterar cargos</li>
-            <li>• Visualizar todos os relatórios</li>
-            <li>• Gerenciar turnos e horários</li>
-          </ul>
-        </div>
-        
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary">
-              <User className="h-3 w-3 mr-1" />
-              Usuário
-            </Badge>
-          </div>
-          <ul className="text-sm text-muted-foreground ml-4 space-y-1">
-            <li>• Registrar ponto</li>
-            <li>• Visualizar próprios relatórios</li>
-            <li>• Solicitar alterações</li>
-          </ul>
+        <div className="text-sm text-muted-foreground space-y-2">
+          <p>
+            Os cargos são totalmente personalizáveis e definem quais funcionalidades 
+            cada colaborador pode acessar no sistema.
+          </p>
+          <p>
+            Acesse a aba <strong>Cargos</strong> nas configurações para criar e 
+            gerenciar cargos personalizados para sua empresa.
+          </p>
         </div>
       </CardContent>
     </Card>

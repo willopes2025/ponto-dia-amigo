@@ -280,6 +280,42 @@ export type Database = {
           },
         ]
       }
+      positions: {
+        Row: {
+          ativo: boolean | null
+          company_id: string
+          created_at: string | null
+          descricao: string | null
+          id: string
+          is_admin: boolean | null
+          nome: string
+          permissoes: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          ativo?: boolean | null
+          company_id: string
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          is_admin?: boolean | null
+          nome: string
+          permissoes?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          ativo?: boolean | null
+          company_id?: string
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          is_admin?: boolean | null
+          nome?: string
+          permissoes?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           company_id: string
@@ -287,6 +323,7 @@ export type Database = {
           email: string
           id: string
           nome: string
+          position_id: string | null
           role: Database["public"]["Enums"]["user_role"] | null
           shift_id: string | null
           status: string | null
@@ -301,6 +338,7 @@ export type Database = {
           email: string
           id?: string
           nome: string
+          position_id?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
           shift_id?: string | null
           status?: string | null
@@ -315,6 +353,7 @@ export type Database = {
           email?: string
           id?: string
           nome?: string
+          position_id?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
           shift_id?: string | null
           status?: string | null
@@ -329,6 +368,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_position_id_fkey"
+            columns: ["position_id"]
+            isOneToOne: false
+            referencedRelation: "positions"
             referencedColumns: ["id"]
           },
           {

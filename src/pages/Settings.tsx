@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
+import { PositionManager } from '@/components/employees/PositionManager';
 
 interface CompanySettings {
   id: string;
@@ -342,8 +343,9 @@ export default function Settings() {
       </div>
 
       <Tabs defaultValue="company" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="company">Empresa</TabsTrigger>
+          <TabsTrigger value="positions">Cargos</TabsTrigger>
           <TabsTrigger value="policies">Políticas</TabsTrigger>
           <TabsTrigger value="shifts">Turnos</TabsTrigger>
           <TabsTrigger value="security">Segurança</TabsTrigger>
@@ -440,6 +442,10 @@ export default function Settings() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="positions" className="space-y-4">
+          <PositionManager />
         </TabsContent>
 
         <TabsContent value="policies" className="space-y-4">

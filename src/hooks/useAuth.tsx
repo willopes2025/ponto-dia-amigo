@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const isAdmin = userProfile?.role === 'admin';
+  const isAdmin = userProfile?.positions?.is_admin || false;
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -64,7 +64,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data: profile } = await supabase
         .from('profiles')
-        .select('*')
+        .select(`
+          *,
+          positions (
+            id,
+            nome,
+            descricao,
+            is_admin,
+            permissoes
+          )
+        `)
         .eq('user_id', userId)
         .single();
       

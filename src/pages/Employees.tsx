@@ -22,10 +22,16 @@ interface Employee {
   created_at: string;
   user_id: string;
   shift_id?: string;
+  position_id?: string;
   shifts?: {
     nome_turno: string;
     hora_inicio: string;
     hora_fim: string;
+  };
+  positions?: {
+    id: string;
+    nome: string;
+    is_admin: boolean;
   };
 }
 
@@ -62,6 +68,11 @@ export default function Employees() {
             nome_turno,
             hora_inicio,
             hora_fim
+          ),
+          positions (
+            id,
+            nome,
+            is_admin
           )
         `)
         .order('created_at', { ascending: false });
