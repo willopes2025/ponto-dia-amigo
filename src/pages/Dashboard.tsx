@@ -7,10 +7,13 @@ import {
   CheckCircle, 
   AlertCircle, 
   Calendar,
-  MapPin
+  MapPin,
+  FileText,
+  ClipboardList
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -35,6 +38,7 @@ interface UserProfile {
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats>({
     totalEmployees: 0,
     activeEmployees: 0,
@@ -295,7 +299,10 @@ export default function Dashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-muted rounded-lg animate-fade-in stagger-item animate-hover-scale cursor-pointer">
+            <div 
+              onClick={() => navigate('/locations')}
+              className="flex items-center justify-between p-3 bg-muted rounded-lg animate-fade-in stagger-item animate-hover-scale cursor-pointer hover:bg-muted/80 transition-colors"
+            >
               <div>
                 <p className="text-sm font-medium">Gerenciar Localizações</p>
                 <p className="text-xs text-muted-foreground">Definir locais de trabalho</p>
@@ -305,20 +312,30 @@ export default function Dashboard() {
               </Badge>
             </div>
             
-            <div className="flex items-center justify-between p-3 bg-muted rounded-lg animate-fade-in stagger-item animate-hover-scale cursor-pointer">
+            <div 
+              onClick={() => navigate('/employees')}
+              className="flex items-center justify-between p-3 bg-muted rounded-lg animate-fade-in stagger-item animate-hover-scale cursor-pointer hover:bg-muted/80 transition-colors"
+            >
               <div>
-                <p className="text-sm font-medium">Revisar Solicitações</p>
-                <p className="text-xs text-muted-foreground">Pendências para análise</p>
+                <p className="text-sm font-medium">Gerenciar Colaboradores</p>
+                <p className="text-xs text-muted-foreground">Administrar equipe</p>
               </div>
-              <Badge variant="outline">0</Badge>
+              <Badge variant="outline">
+                <Users className="h-3 w-3" />
+              </Badge>
             </div>
             
-            <div className="flex items-center justify-between p-3 bg-muted rounded-lg animate-fade-in stagger-item animate-hover-scale cursor-pointer">
+            <div 
+              onClick={() => navigate('/reports')}
+              className="flex items-center justify-between p-3 bg-muted rounded-lg animate-fade-in stagger-item animate-hover-scale cursor-pointer hover:bg-muted/80 transition-colors"
+            >
               <div>
                 <p className="text-sm font-medium">Relatórios</p>
                 <p className="text-xs text-muted-foreground">Gerar relatórios do período</p>
               </div>
-              <Badge variant="outline">Novo</Badge>
+              <Badge variant="outline">
+                <FileText className="h-3 w-3" />
+              </Badge>
             </div>
           </CardContent>
         </Card>
