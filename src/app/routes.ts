@@ -304,7 +304,7 @@ export const MODULOS: ModuloDef[] = [
     grupo: 'gestao',
     permissao: 'cadastros.acessar',
     resumo: 'Tabelas auxiliares, fornecedores e laboratórios, funcionários, filiais e feriados.',
-    fase: 1,
+    fase: null,
     busca: ['fornecedor', 'laboratório', 'grife', 'grupo', 'convênio', 'filial'],
   },
 

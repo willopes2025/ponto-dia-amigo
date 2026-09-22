@@ -5,6 +5,8 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { Carregando, CarregandoTela } from '@/components/comum/Carregando';
 import { AppShell } from '@/shell/AppShell';
 
+import type { PermissionKey } from '@/lib/permissions/catalog';
+
 import { Providers } from './providers';
 import { RotaProtegida } from './RotaProtegida';
 import { MODULOS } from './routes';
@@ -21,6 +23,7 @@ const LandingPage = lazy(() => import('@/features/marketing/pages/LandingPage'))
 const EntrarPage = lazy(() => import('@/features/auth/pages/EntrarPage'));
 const CadastrarPage = lazy(() => import('@/features/auth/pages/CadastrarPage'));
 const PainelPage = lazy(() => import('@/features/dashboard/pages/PainelPage'));
+const CadastrosPage = lazy(() => import('@/features/cadastros/pages/CadastrosPage'));
 const ModuloEmBrevePage = lazy(() => import('@/features/sistema/pages/ModuloEmBrevePage'));
 const NaoEncontradoPage = lazy(() => import('@/features/sistema/pages/NaoEncontradoPage'));
 
@@ -30,7 +33,16 @@ const NaoEncontradoPage = lazy(() => import('@/features/sistema/pages/NaoEncontr
  */
 const PAGINAS: Record<string, ComponentType> = {
   '/painel': PainelPage,
+  '/cadastros': CadastrosPage,
 };
+
+/**
+ * Sub-rotas de um módulo já construído. Ficam fora de `MODULOS` porque o menu
+ * mostra só a entrada principal — a navegação interna é da própria tela.
+ */
+const SUBROTAS: { path: string; permissao: PermissionKey; pagina: ComponentType }[] = [
+  { path: '/cadastros/:slug', permissao: 'cadastros.acessar', pagina: CadastrosPage },
+];
 
 export default function App() {
   return (
@@ -62,6 +74,20 @@ export default function App() {
                 />
               );
             })}
+
+            {SUBROTAS.map(({ path, permissao, pagina: Pagina }) => (
+              <Route
+                key={path}
+                path={path}
+                element={
+                  <RotaProtegida permissao={permissao}>
+                    <Suspense fallback={<Carregando />}>
+                      <Pagina />
+                    </Suspense>
+                  </RotaProtegida>
+                }
+              />
+            ))}
           </Route>
 
           {/* Atalhos e compatibilidade de URL */}
