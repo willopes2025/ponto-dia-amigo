@@ -178,15 +178,13 @@ export function MatrizPermissoes({
                           {acao.sensivel && (
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <span className="inline-flex">
-                                  <Badge
-                                    variant="outline"
-                                    className="gap-1 border-warning/40 px-1 py-0 text-[10px] font-normal text-warning"
-                                  >
-                                    <ShieldCheck className="h-2.5 w-2.5" aria-hidden />
-                                    sensível
-                                  </Badge>
-                                </span>
+                                <Badge
+                                  variant="outline"
+                                  className="gap-1 border-warning/40 px-1 py-0 text-[10px] font-normal text-warning"
+                                >
+                                  <ShieldCheck className="h-2.5 w-2.5" aria-hidden />
+                                  sensível
+                                </Badge>
                               </TooltipTrigger>
                               <TooltipContent className="max-w-xs">
                                 Esta permissão também é verificada na leitura, no banco — não só

@@ -75,7 +75,7 @@ export const MODULOS: ModuloDef[] = [
     grupo: 'operacao',
     permissao: 'clientes.acessar',
     resumo: 'Cadastro completo com múltiplos contatos, núcleo familiar e histórico consolidado.',
-    fase: 1,
+    fase: null,
     busca: ['cpf', 'cnpj', 'família', 'aniversário'],
   },
   {
@@ -85,7 +85,7 @@ export const MODULOS: ModuloDef[] = [
     grupo: 'operacao',
     permissao: 'receitas.consultar',
     resumo: 'Prescrições ópticas por olho, com validade — a base do recall de recompra.',
-    fase: 1,
+    fase: null,
     busca: ['prescrição', 'grau', 'dioptria', 'livro de receitas'],
   },
   {

@@ -122,11 +122,13 @@ begin
 end;
 $$;
 
+-- BEFORE INSERT roda antes da checagem de NOT NULL, então `codigo` e `validade`
+-- seguem obrigatórios na coluna e ainda são preenchidos aqui. Deixá-los
+-- anuláveis "por garantia" propagaria um `| null` por todo o TypeScript, em
+-- campos que na prática nunca são nulos.
 create trigger receitas_preencher_trg
   before insert on public.receitas
   for each row execute function public.receitas_preencher();
-
-alter table public.receitas alter column validade drop not null;
 
 -- -----------------------------------------------------------------------------
 -- receita_historico — a receita é documento clínico; alteração fica registrada

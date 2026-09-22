@@ -65,6 +65,10 @@ begin
   end loop;
 end $$;
 
+-- Contrato das tabelas de apoio: TODAS têm nome, ordem e ativo. A tela genérica
+-- de cadastros escreve essas três colunas em qualquer uma delas, e o seletor de
+-- opções ordena por `ordem`. A suíte de banco confere que nenhuma escapou.
+
 -- -----------------------------------------------------------------------------
 -- grupos e subgrupos de produto
 -- -----------------------------------------------------------------------------
@@ -119,6 +123,7 @@ create table public.convenios (
   -- abate no ato da venda. A diferença muda o destino do recebível.
   tipo                text        not null default 'desconto'
                         check (tipo in ('desconto', 'consignacao', 'permuta')),
+  ordem               integer     not null default 0,
   ativo               boolean     not null default true,
   created_at          timestamptz not null default now(),
   updated_at          timestamptz not null default now()
@@ -176,6 +181,7 @@ create table public.medicos (
   telefone        text,
   email           text,
   observacoes     text,
+  ordem           integer     not null default 0,
   ativo           boolean     not null default true,
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now()
@@ -194,6 +200,7 @@ create table public.responsaveis_tecnicos (
   nome        text        not null,
   registro    text,
   cpf         text,
+  ordem       integer     not null default 0,
   ativo       boolean     not null default true,
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
@@ -294,6 +301,7 @@ create table public.motivos_cancelamento (
   -- oferecido precisa refletir isso.
   aplica_a   text        not null default 'venda'
                check (aplica_a in ('venda', 'os', 'orcamento', 'troca', 'todos')),
+  ordem      integer     not null default 0,
   ativo      boolean     not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -317,6 +325,7 @@ create table public.feriados (
   uf          char(2),
   -- Feriado de data fixa repete todo ano; Carnaval e Corpus Christi, não.
   recorrente  boolean     not null default false,
+  ordem       integer     not null default 0,
   ativo       boolean     not null default true,
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now(),

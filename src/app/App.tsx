@@ -25,6 +25,9 @@ const CadastrarPage = lazy(() => import('@/features/auth/pages/CadastrarPage'));
 const PainelPage = lazy(() => import('@/features/dashboard/pages/PainelPage'));
 const CadastrosPage = lazy(() => import('@/features/cadastros/pages/CadastrosPage'));
 const PermissoesPage = lazy(() => import('@/features/permissoes/pages/PermissoesPage'));
+const ClientesPage = lazy(() => import('@/features/clientes/pages/ClientesPage'));
+const ClienteFormPage = lazy(() => import('@/features/clientes/pages/ClienteFormPage'));
+const ReceitasPage = lazy(() => import('@/features/receitas/pages/ReceitasPage'));
 const ModuloEmBrevePage = lazy(() => import('@/features/sistema/pages/ModuloEmBrevePage'));
 const NaoEncontradoPage = lazy(() => import('@/features/sistema/pages/NaoEncontradoPage'));
 
@@ -36,6 +39,8 @@ const PAGINAS: Record<string, ComponentType> = {
   '/painel': PainelPage,
   '/cadastros': CadastrosPage,
   '/permissoes': PermissoesPage,
+  '/clientes': ClientesPage,
+  '/receitas': ReceitasPage,
 };
 
 /**
@@ -44,6 +49,7 @@ const PAGINAS: Record<string, ComponentType> = {
  */
 const SUBROTAS: { path: string; permissao: PermissionKey; pagina: ComponentType }[] = [
   { path: '/cadastros/:slug', permissao: 'cadastros.acessar', pagina: CadastrosPage },
+  { path: '/clientes/:id', permissao: 'clientes.consultar', pagina: ClienteFormPage },
 ];
 
 export default function App() {

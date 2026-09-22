@@ -19,7 +19,9 @@
     "gen:permissions": "node scripts/gen-permissions.mjs",
     "verificar": "npm run lint && npm run typecheck && npm run test && npm run build",
     "db:dev": "bash scripts/db-dev.sh",
-    "dev:backend": "node scripts/dev-backend.mjs"
+    "dev:backend": "node scripts/dev-backend.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "smoke:app": "node scripts/smoke-app.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

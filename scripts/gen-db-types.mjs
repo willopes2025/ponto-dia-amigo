@@ -29,8 +29,32 @@ function sql(query) {
     .map((l) => l.split('\u001f'));
 }
 
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+const enums = new Map();
+for (const [nome, valor] of sql(`
+  select t.typname, e.enumlabel
+    from pg_type t
+    join pg_namespace n on n.oid = t.typnamespace
+    join pg_enum e on e.enumtypid = t.oid
+   where n.nspname = 'public'
+   order by t.typname, e.enumsortorder
+`)) {
+  if (!enums.has(nome)) enums.set(nome, []);
+  enums.get(nome).push(valor);
+}
+
 /** Mapa tipo Postgres → tipo TypeScript. */
 function tsType(udt, isArray) {
+  // Enum do banco vira referência ao bloco Enums, não `unknown`. Sem isto, um
+  // campo `tipo: 'pf' | 'pj'` chega ao formulário como `unknown` e a checagem
+  // desaparece justamente onde ela mais vale.
+  if (enums.has(udt)) {
+    const nome = `Database['public']['Enums']['${udt}']`;
+    return isArray ? `${nome}[]` : nome;
+  }
+
   const base = {
     uuid: 'string',
     text: 'string',
@@ -130,22 +154,6 @@ for (const [tabela, nome, colunas, refTabela, refColunas, umParaUm] of fks) {
     refColunas: refColunas.split(','),
     umParaUm: umParaUm === 'true',
   });
-}
-
-// ---------------------------------------------------------------------------
-// Enums
-// ---------------------------------------------------------------------------
-const enums = new Map();
-for (const [nome, valor] of sql(`
-  select t.typname, e.enumlabel
-    from pg_type t
-    join pg_namespace n on n.oid = t.typnamespace
-    join pg_enum e on e.enumtypid = t.oid
-   where n.nspname = 'public'
-   order by t.typname, e.enumsortorder
-`)) {
-  if (!enums.has(nome)) enums.set(nome, []);
-  enums.get(nome).push(valor);
 }
 
 // ---------------------------------------------------------------------------

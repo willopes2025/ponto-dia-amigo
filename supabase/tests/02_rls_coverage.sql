@@ -181,3 +181,43 @@ end $$;
 
 \warn ''
 \warn '✓ cobertura de RLS em ordem'
+
+\warn ''
+\warn '── Contrato das tabelas de apoio ─────────────────────────────────────'
+
+-- A tela genérica de cadastros escreve nome, ordem e ativo em qualquer tabela
+-- de apoio, e o seletor de opções ordena por `ordem`. Uma tabela sem essas
+-- colunas quebra a tela com "column does not exist" — erro que só aparece ao
+-- abrir aquele cadastro específico.
+do $$
+declare
+  v_faltando text[] := '{}';
+  v_tabela   text;
+  v_coluna   text;
+begin
+  foreach v_tabela in array array[
+    'unidades', 'cores', 'tamanhos', 'formatos', 'generos', 'tipos_lente',
+    'grifes', 'origens_cliente', 'tipos_documento', 'profissoes',
+    'grupos', 'subgrupos', 'convenios', 'formas_pagamento', 'medicos',
+    'responsaveis_tecnicos', 'situacoes_conta_receber', 'motivos_cancelamento',
+    'feriados'
+  ] loop
+    foreach v_coluna in array array['nome', 'ordem', 'ativo'] loop
+      if not exists (
+        select 1 from pg_attribute a
+          join pg_class c on c.oid = a.attrelid
+          join pg_namespace n on n.oid = c.relnamespace
+         where n.nspname = 'public' and c.relname = v_tabela
+           and a.attname = v_coluna and a.attnum > 0 and not a.attisdropped
+      ) then
+        v_faltando := v_faltando || format('%s.%s', v_tabela, v_coluna);
+      end if;
+    end loop;
+  end loop;
+
+  if array_length(v_faltando, 1) > 0 then
+    raise exception 'FALHOU: tabelas de apoio sem as colunas do contrato: %',
+      array_to_string(v_faltando, ', ');
+  end if;
+  raise notice '  ok · as 19 tabelas de apoio têm nome, ordem e ativo';
+end $$;

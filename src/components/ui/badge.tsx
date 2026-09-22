@@ -24,13 +24,23 @@ const badgeVariants = cva(
 )
 
 export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends React.HTMLAttributes<HTMLSpanElement>,
     VariantProps<typeof badgeVariants> {}
 
-function Badge({ className, variant, ...props }: BadgeProps) {
-  return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
-  )
-}
+/**
+ * Adaptado do shadcn/ui em dois pontos, de propósito:
+ *
+ *  1. Renderiza <span>, não <div>. O badge aparece dentro de <p> e de <label>
+ *     por todo o sistema, e um <div> ali é HTML inválido — o React avisa e
+ *     alguns navegadores fecham o parágrafo antes do badge, quebrando o layout.
+ *  2. Encaminha a ref. Radix passa ref pelo `asChild` (tooltip, popover); sem
+ *     forwardRef, o React avisa e o tooltip não ancora no elemento certo.
+ */
+const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
+  ({ className, variant, ...props }, ref) => (
+    <span ref={ref} className={cn(badgeVariants({ variant }), className)} {...props} />
+  ),
+)
+Badge.displayName = "Badge"
 
 export { Badge, badgeVariants }

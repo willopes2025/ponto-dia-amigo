@@ -349,7 +349,7 @@ export interface Database {
           cliente_id: string
           ddi: string
           numero: string
-          tipo: unknown
+          tipo: Database['public']['Enums']['tipo_telefone']
           aceita_whatsapp: boolean
           aceita_sms: boolean
           aceita_ligacao: boolean
@@ -364,7 +364,7 @@ export interface Database {
           cliente_id: string
           ddi?: string
           numero: string
-          tipo?: unknown
+          tipo?: Database['public']['Enums']['tipo_telefone']
           aceita_whatsapp?: boolean
           aceita_sms?: boolean
           aceita_ligacao?: boolean
@@ -379,7 +379,7 @@ export interface Database {
           cliente_id?: string
           ddi?: string
           numero?: string
-          tipo?: unknown
+          tipo?: Database['public']['Enums']['tipo_telefone']
           aceita_whatsapp?: boolean
           aceita_sms?: boolean
           aceita_ligacao?: boolean
@@ -411,13 +411,13 @@ export interface Database {
           tenant_id: string
           store_id: string | null
           codigo: number
-          tipo: unknown
+          tipo: Database['public']['Enums']['tipo_pessoa']
           nome: string
           apelido: string | null
           cpf_cnpj: string | null
           rg: string | null
           data_nascimento: string | null
-          sexo: unknown
+          sexo: Database['public']['Enums']['sexo_cliente']
           estado_civil: string | null
           razao_social: string | null
           inscricao_estadual: string | null
@@ -459,13 +459,13 @@ export interface Database {
           tenant_id: string
           store_id?: string | null
           codigo: number
-          tipo?: unknown
+          tipo?: Database['public']['Enums']['tipo_pessoa']
           nome: string
           apelido?: string | null
           cpf_cnpj?: string | null
           rg?: string | null
           data_nascimento?: string | null
-          sexo?: unknown
+          sexo?: Database['public']['Enums']['sexo_cliente']
           estado_civil?: string | null
           razao_social?: string | null
           inscricao_estadual?: string | null
@@ -507,13 +507,13 @@ export interface Database {
           tenant_id?: string
           store_id?: string | null
           codigo?: number
-          tipo?: unknown
+          tipo?: Database['public']['Enums']['tipo_pessoa']
           nome?: string
           apelido?: string | null
           cpf_cnpj?: string | null
           rg?: string | null
           data_nascimento?: string | null
-          sexo?: unknown
+          sexo?: Database['public']['Enums']['sexo_cliente']
           estado_civil?: string | null
           razao_social?: string | null
           inscricao_estadual?: string | null
@@ -653,6 +653,7 @@ export interface Database {
           email: string | null
           desconto_percentual: number
           tipo: string
+          ordem: number
           ativo: boolean
           created_at: string
           updated_at: string
@@ -668,6 +669,7 @@ export interface Database {
           email?: string | null
           desconto_percentual?: number
           tipo?: string
+          ordem?: number
           ativo?: boolean
           created_at?: string
           updated_at?: string
@@ -683,6 +685,7 @@ export interface Database {
           email?: string | null
           desconto_percentual?: number
           tipo?: string
+          ordem?: number
           ativo?: boolean
           created_at?: string
           updated_at?: string
@@ -849,6 +852,7 @@ export interface Database {
           abrangencia: string
           uf: string | null
           recorrente: boolean
+          ordem: number
           ativo: boolean
           created_at: string
           updated_at: string
@@ -862,6 +866,7 @@ export interface Database {
           abrangencia?: string
           uf?: string | null
           recorrente?: boolean
+          ordem?: number
           ativo?: boolean
           created_at?: string
           updated_at?: string
@@ -875,6 +880,7 @@ export interface Database {
           abrangencia?: string
           uf?: string | null
           recorrente?: boolean
+          ordem?: number
           ativo?: boolean
           created_at?: string
           updated_at?: string
@@ -901,7 +907,7 @@ export interface Database {
           id: string
           tenant_id: string
           nome: string
-          natureza: unknown
+          natureza: Database['public']['Enums']['natureza_pagamento']
           permite_parcelamento: boolean
           max_parcelas: number
           taxa_percentual: number
@@ -917,7 +923,7 @@ export interface Database {
           id?: string
           tenant_id: string
           nome: string
-          natureza: unknown
+          natureza: Database['public']['Enums']['natureza_pagamento']
           permite_parcelamento?: boolean
           max_parcelas?: number
           taxa_percentual?: number
@@ -933,7 +939,7 @@ export interface Database {
           id?: string
           tenant_id?: string
           nome?: string
-          natureza?: unknown
+          natureza?: Database['public']['Enums']['natureza_pagamento']
           permite_parcelamento?: boolean
           max_parcelas?: number
           taxa_percentual?: number
@@ -1388,6 +1394,7 @@ export interface Database {
           telefone: string | null
           email: string | null
           observacoes: string | null
+          ordem: number
           ativo: boolean
           created_at: string
           updated_at: string
@@ -1403,6 +1410,7 @@ export interface Database {
           telefone?: string | null
           email?: string | null
           observacoes?: string | null
+          ordem?: number
           ativo?: boolean
           created_at?: string
           updated_at?: string
@@ -1418,6 +1426,7 @@ export interface Database {
           telefone?: string | null
           email?: string | null
           observacoes?: string | null
+          ordem?: number
           ativo?: boolean
           created_at?: string
           updated_at?: string
@@ -1438,6 +1447,7 @@ export interface Database {
           tenant_id: string
           nome: string
           aplica_a: string
+          ordem: number
           ativo: boolean
           created_at: string
           updated_at: string
@@ -1447,6 +1457,7 @@ export interface Database {
           tenant_id: string
           nome: string
           aplica_a?: string
+          ordem?: number
           ativo?: boolean
           created_at?: string
           updated_at?: string
@@ -1456,6 +1467,7 @@ export interface Database {
           tenant_id?: string
           nome?: string
           aplica_a?: string
+          ordem?: number
           ativo?: boolean
           created_at?: string
           updated_at?: string
@@ -1667,7 +1679,7 @@ export interface Database {
           parent_id: string | null
           codigo: string
           nome: string
-          natureza: unknown
+          natureza: Database['public']['Enums']['natureza_conta']
           analitica: boolean
           ativo: boolean
           created_at: string
@@ -1679,7 +1691,7 @@ export interface Database {
           parent_id?: string | null
           codigo: string
           nome: string
-          natureza: unknown
+          natureza: Database['public']['Enums']['natureza_conta']
           analitica?: boolean
           ativo?: boolean
           created_at?: string
@@ -1691,7 +1703,7 @@ export interface Database {
           parent_id?: string | null
           codigo?: string
           nome?: string
-          natureza?: unknown
+          natureza?: Database['public']['Enums']['natureza_conta']
           analitica?: boolean
           ativo?: boolean
           created_at?: string
@@ -1891,11 +1903,11 @@ export interface Database {
           store_id: string | null
           cliente_id: string
           codigo: number
-          tipo: unknown
+          tipo: Database['public']['Enums']['tipo_receita']
           medico_id: string | null
           medico_nome: string | null
           data_receita: string
-          validade: string | null
+          validade: string
           od_esferico: number | null
           od_cilindrico: number | null
           od_eixo: number | null
@@ -1930,11 +1942,11 @@ export interface Database {
           store_id?: string | null
           cliente_id: string
           codigo: number
-          tipo?: unknown
+          tipo?: Database['public']['Enums']['tipo_receita']
           medico_id?: string | null
           medico_nome?: string | null
           data_receita?: string
-          validade?: string | null
+          validade: string
           od_esferico?: number | null
           od_cilindrico?: number | null
           od_eixo?: number | null
@@ -1969,11 +1981,11 @@ export interface Database {
           store_id?: string | null
           cliente_id?: string
           codigo?: number
-          tipo?: unknown
+          tipo?: Database['public']['Enums']['tipo_receita']
           medico_id?: string | null
           medico_nome?: string | null
           data_receita?: string
-          validade?: string | null
+          validade?: string
           od_esferico?: number | null
           od_cilindrico?: number | null
           od_eixo?: number | null
@@ -2048,6 +2060,7 @@ export interface Database {
           nome: string
           registro: string | null
           cpf: string | null
+          ordem: number
           ativo: boolean
           created_at: string
           updated_at: string
@@ -2059,6 +2072,7 @@ export interface Database {
           nome: string
           registro?: string | null
           cpf?: string | null
+          ordem?: number
           ativo?: boolean
           created_at?: string
           updated_at?: string
@@ -2070,6 +2084,7 @@ export interface Database {
           nome?: string
           registro?: string | null
           cpf?: string | null
+          ordem?: number
           ativo?: boolean
           created_at?: string
           updated_at?: string
@@ -2619,7 +2634,7 @@ export interface Database {
           store_id: string | null
           cliente_id: string | null
           codigo: number | null
-          tipo: unknown | null
+          tipo: Database['public']['Enums']['tipo_receita'] | null
           data_receita: string | null
           validade: string | null
           multifocal: boolean | null
