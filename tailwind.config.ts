@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
 	darkMode: ["class"],
@@ -18,6 +19,30 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				// A Inter é carregada por <link> no index.html. A pilha de fallback
+				// existe porque a fonte vem da rede: se o carregamento falhar, o
+				// texto cai numa fonte de sistema parecida, não na serifada padrão.
+				sans: [
+					'Inter',
+					'ui-sans-serif',
+					'system-ui',
+					'-apple-system',
+					'"Segoe UI"',
+					'Roboto',
+					'"Helvetica Neue"',
+					'Arial',
+					'sans-serif',
+				],
+				mono: [
+					'ui-monospace',
+					'SFMono-Regular',
+					'"SF Mono"',
+					'Menlo',
+					'Consolas',
+					'monospace',
+				],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -62,7 +87,7 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Ponto Seguro custom colors
+				// VISIO — estados
 				success: {
 					DEFAULT: 'hsl(var(--success))',
 					foreground: 'hsl(var(--success-foreground))'
@@ -75,11 +100,14 @@ export default {
 					DEFAULT: 'hsl(var(--info))',
 					foreground: 'hsl(var(--info-foreground))'
 				},
-				// Time tracking colors
-				'time-entry': 'hsl(var(--time-entry))',
-				'time-pause': 'hsl(var(--time-pause))',
-				'time-exit': 'hsl(var(--time-exit))',
-				'time-complete': 'hsl(var(--time-complete))'
+				// VISIO — domínio
+				atraso: 'hsl(var(--atraso))',
+				'no-prazo': 'hsl(var(--no-prazo))',
+				'margem-alta': 'hsl(var(--margem-alta))',
+				'margem-media': 'hsl(var(--margem-media))',
+				'margem-baixa': 'hsl(var(--margem-baixa))',
+				tratamento: 'hsl(var(--tratamento))',
+				controle: 'hsl(var(--controle))'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -170,5 +198,5 @@ export default {
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [tailwindcssAnimate],
 } satisfies Config;

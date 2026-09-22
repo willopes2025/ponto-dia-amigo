@@ -47,3 +47,7 @@ coverage/
 
 # Supabase
 supabase/.temp/
+
+# Prints da verificação visual (scripts/smoke.mjs)
+.smoke/
+

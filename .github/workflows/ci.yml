@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  aplicacao:
+    name: Lint, tipos, testes e build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Artefatos gerados estão em dia
+        # O catálogo de permissões é gerado de scripts/permissions-source.mjs.
+        # Se alguém editar a fonte e esquecer de regerar, SQL e TypeScript saem
+        # de sincronia — e o erro só apareceria em produção, como permissão que
+        # existe na tela e não no banco.
+        run: |
+          npm run gen:permissions
+          git diff --exit-code -- src/lib/permissions/catalog.ts supabase/migrations \
+            || { echo '::error::Rode `npm run gen:permissions` e comite o resultado.'; exit 1; }
+
+      - run: npm run lint
+
+      - run: npm run typecheck
+
+      - run: npm run test
+
+      - name: Build
+        run: npm run build
+        env:
+          # O build valida a configuração de ambiente; valores de fachada bastam
+          # para provar que o bundle compila.
+          VITE_SUPABASE_URL: https://ci.supabase.co
+          VITE_SUPABASE_ANON_KEY: chave-anonima-de-ci-suficientemente-longa
+
+  banco:
+    name: Migrations e RLS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar PostgreSQL 16
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-16 postgresql-client-16
+
+      - name: Aplicar migrations e rodar a suíte de banco
+        # Aqui se prova o que só um Postgres real prova: isolamento entre redes,
+        # permissão por ação, e que toda tabela nova tem RLS com recorte de rede.
+        run: npm run test:db
+        env:
+          PGBIN: /usr/lib/postgresql/16/bin
+          VISIO_PGDATA: ${{ runner.temp }}/visio-pgdata
+          VISIO_PGSOCK: /tmp/visio-pg

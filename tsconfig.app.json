@@ -14,17 +14,21 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* Linting */
-    "strict": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitAny": false,
-    "noFallthroughCasesInSwitch": false,
+    /* Rigor. Ligado agora, com o src praticamente vazio, porque é o único
+       momento em que custa zero: depois de 40 mil linhas frouxas, nunca mais
+       acontece. `strict` é o que faz o tsc apontar o campo que a migration
+       renomeou, em vez de o erro aparecer em produção. */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": false,
 
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+
+    "types": ["vite/client"]
   },
   "include": ["src"]
 }

@@ -1,5 +1,12 @@
-import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
+import { createRoot } from 'react-dom/client';
 
-createRoot(document.getElementById("root")!).render(<App />);
+import App from '@/app/App';
+
+import './index.css';
+
+const raiz = document.getElementById('root');
+if (!raiz) {
+  throw new Error('Elemento #root não encontrado em index.html');
+}
+
+createRoot(raiz).render(<App />);
