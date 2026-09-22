@@ -124,4 +124,60 @@ begin
 end $$;
 
 \warn ''
+\warn '── Nenhuma função privilegiada exposta por RPC ────────────────────────'
+
+-- O Postgres concede EXECUTE a PUBLIC em toda função nova. Numa função
+-- SECURITY DEFINER isso é escalada de privilégio: o app poderia chamar por RPC
+-- algo que roda como dono do schema. Esta lista é o contrato — função nova
+-- exposta sem estar aqui reprova o teste.
+create temp table _execucao_permitida (nome text primary key);
+insert into _execucao_permitida (nome) values
+  ('current_profile_id'), ('current_tenant_id'), ('current_store_ids'),
+  ('has_permission'), ('current_permissions'),
+  ('normalizar_texto'), ('somente_digitos'), ('calcular_pascoa');
+
+do $$
+declare
+  v_indevidas text[];
+begin
+  select coalesce(array_agg(p.proname order by p.proname), '{}')
+    into v_indevidas
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+   where n.nspname = 'public'
+     and p.prokind = 'f'
+     and has_function_privilege('authenticated', p.oid, 'EXECUTE')
+     and p.proname not in (select nome from _execucao_permitida);
+
+  if array_length(v_indevidas, 1) > 0 then
+    raise exception 'FALHOU: funções executáveis por authenticated fora do contrato: %',
+      array_to_string(v_indevidas, ', ');
+  end if;
+  raise notice '  ok · só as % funções do contrato são executáveis pelo app',
+    (select count(*) from _execucao_permitida);
+end $$;
+
+-- E o contrário: se uma função do contrato deixar de ser executável, o app
+-- quebra em produção com "permission denied for function".
+do $$
+declare
+  v_faltando text[];
+begin
+  select coalesce(array_agg(e.nome order by e.nome), '{}')
+    into v_faltando
+    from _execucao_permitida e
+   where not exists (
+     select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+      where n.nspname = 'public' and p.proname = e.nome
+        and has_function_privilege('authenticated', p.oid, 'EXECUTE')
+   );
+
+  if array_length(v_faltando, 1) > 0 then
+    raise exception 'FALHOU: o app precisa destas funções e perdeu o EXECUTE: %',
+      array_to_string(v_faltando, ', ');
+  end if;
+  raise notice '  ok · todas as funções do contrato seguem executáveis';
+end $$;
+
+\warn ''
 \warn '✓ cobertura de RLS em ordem'
