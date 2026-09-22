@@ -93,37 +93,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    // A ordem importa: registrar o listener ANTES de pedir a sessão, para não
-    // perder um evento que chegue no meio do caminho.
+    let ativo = true;
+
+    // Registrar o listener ANTES de pedir a sessão, para não perder um evento
+    // que chegue no meio do caminho.
+    //
+    // O listener NÃO mexe em `carregando`. Quem encerra o carregamento inicial é
+    // só o `getSession()` abaixo — ter duas fontes criava uma corrida: o
+    // listener marcava "pronto, sem sessão" antes de a sessão salva ser lida, o
+    // guarda de rota mandava para o login, e o login (já autenticado) jogava
+    // para o painel. Abrir um link direto de qualquer tela protegida caía
+    // sempre no painel.
     const { data: subscription } = supabase.auth.onAuthStateChange((evento, novaSessao) => {
+      if (!ativo) return;
       setSessao(novaSessao);
 
       if (!novaSessao) {
         geracao.current += 1;
         setContexto(null);
-        setCarregando(false);
         return;
       }
 
       // Não dá para chamar o Supabase de dentro do callback de auth (deadlock
       // conhecido do SDK); jogar para o próximo tick resolve.
-      if (evento === 'SIGNED_IN' || evento === 'TOKEN_REFRESHED' || evento === 'INITIAL_SESSION') {
-        setTimeout(() => {
-          void aplicarContexto().finally(() => setCarregando(false));
-        }, 0);
+      if (evento === 'SIGNED_IN' || evento === 'TOKEN_REFRESHED') {
+        setTimeout(() => void aplicarContexto(), 0);
       }
     });
 
-    void supabase.auth.getSession().then(({ data }) => {
-      setSessao(data.session);
-      if (!data.session) {
-        setCarregando(false);
-        return;
-      }
-      void aplicarContexto().finally(() => setCarregando(false));
-    });
+    void supabase.auth
+      .getSession()
+      .then(async ({ data }) => {
+        if (!ativo) return;
+        setSessao(data.session);
+        if (data.session) await aplicarContexto();
+      })
+      .finally(() => {
+        if (ativo) setCarregando(false);
+      });
 
-    return () => subscription.subscription.unsubscribe();
+    return () => {
+      ativo = false;
+      subscription.subscription.unsubscribe();
+    };
   }, [aplicarContexto]);
 
   // A filial válida é: a escolhida, se o usuário ainda tem acesso a ela; senão a

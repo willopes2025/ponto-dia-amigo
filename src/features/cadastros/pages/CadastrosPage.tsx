@@ -213,7 +213,7 @@ export default function CadastrosPage() {
               }}
             >
               <Plus className="mr-2 h-4 w-4" aria-hidden />
-              Novo {config.rotuloSingular}
+              {config.genero === 'f' ? 'Nova' : 'Novo'} {config.rotuloSingular}
             </Button>
           )
         }
@@ -298,7 +298,7 @@ export default function CadastrosPage() {
               titulo={
                 lista.busca || apenasAtivos
                   ? 'Nenhum registro com esses filtros'
-                  : `Nenhum ${config.rotuloSingular} cadastrado`
+                  : `${config.genero === 'f' ? 'Nenhuma' : 'Nenhum'} ${config.rotuloSingular} cadastrad${config.genero === 'f' ? 'a' : 'o'}`
               }
               descricao={
                 lista.busca || apenasAtivos

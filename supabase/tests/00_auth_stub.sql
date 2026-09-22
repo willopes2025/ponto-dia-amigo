@@ -11,14 +11,40 @@ create table if not exists auth.users (
   created_at         timestamptz default now()
 );
 
--- auth.uid() do Supabase lê o claim `sub` do JWT em request.jwt.claims.
--- Aqui basta ler um GUC que os testes definem à mão.
+-- Reproduz a implementação real do Supabase.
+--
+-- As duas formas importam: o PostgREST 12 publica os claims como um JSON único
+-- em `request.jwt.claims`, enquanto versões antigas — e os nossos testes, que
+-- definem o GUC à mão — usam `request.jwt.claim.sub`. Ler só uma delas faz o
+-- RLS devolver lista vazia sem erro nenhum, que é o pior modo de falhar.
 create or replace function auth.uid()
 returns uuid
 language sql
 stable
 as $$
-  select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid;
+  select coalesce(
+    nullif(current_setting('request.jwt.claim.sub', true), ''),
+    (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub')
+  )::uuid;
+$$;
+
+create or replace function auth.role()
+returns text
+language sql
+stable
+as $$
+  select coalesce(
+    nullif(current_setting('request.jwt.claim.role', true), ''),
+    (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'role')
+  );
+$$;
+
+create or replace function auth.jwt()
+returns jsonb
+language sql
+stable
+as $$
+  select coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb;
 $$;
 
 -- Roles são globais ao cluster, não ao banco: só cria se faltar.
@@ -34,5 +60,7 @@ end $$;
 
 -- No Supabase real, anon/authenticated têm usage em `auth` e execute em auth.uid().
 grant usage on schema auth to anon, authenticated;
-grant execute on function auth.uid() to anon, authenticated;
+grant execute on function auth.uid()  to anon, authenticated;
+grant execute on function auth.role() to anon, authenticated;
+grant execute on function auth.jwt()  to anon, authenticated;
 grant select on auth.users to authenticated;

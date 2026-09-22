@@ -38,6 +38,8 @@ export interface CadastroConfig {
   slug: string;
   rotulo: string;
   rotuloSingular: string;
+  /** Gênero do rótulo singular, para "Novo grupo" e "Nova grife" concordarem. */
+  genero: 'm' | 'f';
   descricao: string;
   /** Agrupamento nas abas da tela. */
   grupo: 'produto' | 'comercial' | 'financeiro' | 'clinico' | 'operacao';
@@ -65,6 +67,7 @@ export const CADASTROS: CadastroConfig[] = [
   // ─── Produto ────────────────────────────────────────────────────────────
   {
     tabela: 'grupos', slug: 'grupos', rotulo: 'Grupos', rotuloSingular: 'grupo',
+    genero: 'm',
     descricao: 'Categoria principal do produto. Dimensão de quase todo relatório de venda e estoque.',
     grupo: 'produto', permissao: 'cadastros.tabelas_auxiliares',
     campos: [
@@ -77,6 +80,7 @@ export const CADASTROS: CadastroConfig[] = [
   },
   {
     tabela: 'subgrupos', slug: 'subgrupos', rotulo: 'Subgrupos', rotuloSingular: 'subgrupo',
+    genero: 'm',
     descricao: 'Subdivisão dentro de um grupo.',
     grupo: 'produto', permissao: 'cadastros.tabelas_auxiliares',
     campos: [
@@ -88,36 +92,43 @@ export const CADASTROS: CadastroConfig[] = [
   },
   {
     tabela: 'grifes', slug: 'grifes', rotulo: 'Grifes', rotuloSingular: 'grife',
+    genero: 'f',
     descricao: 'Marca do produto. Vale a pena manter limpa: é por aqui que se lê o giro por marca.',
     grupo: 'produto', permissao: 'cadastros.tabelas_auxiliares',
   },
   {
     tabela: 'tipos_lente', slug: 'tipos-lente', rotulo: 'Tipos de lente', rotuloSingular: 'tipo de lente',
+    genero: 'm',
     descricao: 'Monofocal, multifocal, ocupacional. Usado na compatibilidade com a receita.',
     grupo: 'produto', permissao: 'cadastros.tabelas_auxiliares',
   },
   {
     tabela: 'cores', slug: 'cores', rotulo: 'Cores', rotuloSingular: 'cor',
+    genero: 'f',
     descricao: 'Cor da armação ou da lente.',
     grupo: 'produto', permissao: 'cadastros.tabelas_auxiliares',
   },
   {
     tabela: 'formatos', slug: 'formatos', rotulo: 'Formatos', rotuloSingular: 'formato',
+    genero: 'm',
     descricao: 'Formato da armação. Entra na recomendação por formato de rosto.',
     grupo: 'produto', permissao: 'cadastros.tabelas_auxiliares',
   },
   {
     tabela: 'tamanhos', slug: 'tamanhos', rotulo: 'Tamanhos', rotuloSingular: 'tamanho',
+    genero: 'm',
     descricao: 'Tamanho da armação.',
     grupo: 'produto', permissao: 'cadastros.tabelas_auxiliares',
   },
   {
     tabela: 'generos', slug: 'generos', rotulo: 'Gêneros', rotuloSingular: 'gênero',
+    genero: 'm',
     descricao: 'Público a que o produto se destina.',
     grupo: 'produto', permissao: 'cadastros.tabelas_auxiliares',
   },
   {
     tabela: 'unidades', slug: 'unidades', rotulo: 'Unidades', rotuloSingular: 'unidade',
+    genero: 'f',
     descricao: 'Unidade de medida: UN, PAR, CX.',
     grupo: 'produto', permissao: 'cadastros.tabelas_auxiliares',
   },
@@ -125,11 +136,13 @@ export const CADASTROS: CadastroConfig[] = [
   // ─── Comercial ──────────────────────────────────────────────────────────
   {
     tabela: 'origens_cliente', slug: 'origens', rotulo: 'Origens de cliente', rotuloSingular: 'origem',
+    genero: 'f',
     descricao: 'De onde veio o cliente. É a dimensão que mede canal de aquisição.',
     grupo: 'comercial', permissao: 'cadastros.tabelas_auxiliares',
   },
   {
     tabela: 'convenios', slug: 'convenios', rotulo: 'Convênios', rotuloSingular: 'convênio',
+    genero: 'm',
     descricao: 'Empresas parceiras. O tipo muda o destino do recebível.',
     grupo: 'comercial', permissao: 'cadastros.tabelas_auxiliares',
     campos: [
@@ -151,12 +164,14 @@ export const CADASTROS: CadastroConfig[] = [
   },
   {
     tabela: 'profissoes', slug: 'profissoes', rotulo: 'Profissões', rotuloSingular: 'profissão',
+    genero: 'f',
     descricao: 'Profissão do cliente. Usada na segmentação e na análise de crediário.',
     grupo: 'comercial', permissao: 'cadastros.tabelas_auxiliares',
   },
   {
     tabela: 'motivos_cancelamento', slug: 'motivos-cancelamento',
     rotulo: 'Motivos de cancelamento', rotuloSingular: 'motivo',
+    genero: 'm',
     descricao: 'Cancelar venda, O.S. e orçamento são decisões diferentes — o motivo oferecido acompanha.',
     grupo: 'comercial', permissao: 'cadastros.tabelas_auxiliares',
     temDescricao: false,
@@ -178,6 +193,7 @@ export const CADASTROS: CadastroConfig[] = [
   {
     tabela: 'formas_pagamento', slug: 'formas-pagamento',
     rotulo: 'Formas de pagamento', rotuloSingular: 'forma de pagamento',
+    genero: 'f',
     descricao: 'Taxa e prazo de crédito entram aqui: é o que permite conciliar o líquido que cai na conta.',
     grupo: 'financeiro', permissao: 'cadastros.tabelas_auxiliares',
     temDescricao: false,
@@ -203,6 +219,7 @@ export const CADASTROS: CadastroConfig[] = [
   {
     tabela: 'situacoes_conta_receber', slug: 'situacoes-receber',
     rotulo: 'Situações de recebimento', rotuloSingular: 'situação',
+    genero: 'f',
     descricao: 'Estados do título a receber. A marcação de inadimplência alimenta a régua de cobrança.',
     grupo: 'financeiro', permissao: 'cadastros.tabelas_auxiliares',
     campos: [
@@ -212,6 +229,7 @@ export const CADASTROS: CadastroConfig[] = [
   {
     tabela: 'tipos_documento', slug: 'tipos-documento',
     rotulo: 'Tipos de documento', rotuloSingular: 'tipo de documento',
+    genero: 'm',
     descricao: 'Nota, recibo, duplicata. Classifica o título no financeiro.',
     grupo: 'financeiro', permissao: 'cadastros.tabelas_auxiliares',
   },
@@ -219,6 +237,7 @@ export const CADASTROS: CadastroConfig[] = [
   // ─── Clínico ────────────────────────────────────────────────────────────
   {
     tabela: 'medicos', slug: 'medicos', rotulo: 'Médicos e optometristas', rotuloSingular: 'prescritor',
+    genero: 'm',
     descricao: 'Quem prescreve. O conselho difere: CRM para oftalmologista, CRO para optometrista.',
     grupo: 'clinico', permissao: 'cadastros.medicos',
     temDescricao: false,
@@ -242,6 +261,7 @@ export const CADASTROS: CadastroConfig[] = [
   {
     tabela: 'responsaveis_tecnicos', slug: 'responsaveis-tecnicos',
     rotulo: 'Responsáveis técnicos', rotuloSingular: 'responsável técnico',
+    genero: 'm',
     descricao: 'Responsável técnico da filial, exigido pela regulamentação do setor.',
     grupo: 'clinico', permissao: 'cadastros.tabelas_auxiliares',
     temDescricao: false,
@@ -254,6 +274,7 @@ export const CADASTROS: CadastroConfig[] = [
   // ─── Operação ───────────────────────────────────────────────────────────
   {
     tabela: 'feriados', slug: 'feriados', rotulo: 'Feriados', rotuloSingular: 'feriado',
+    genero: 'm',
     descricao:
       'Entram no prazo das Ordens de Serviço. Os nacionais já vêm cadastrados, inclusive os móveis; acrescente os municipais e os fechamentos da loja.',
     grupo: 'operacao', permissao: 'cadastros.feriados',

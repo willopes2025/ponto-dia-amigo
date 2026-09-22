@@ -24,6 +24,7 @@ const EntrarPage = lazy(() => import('@/features/auth/pages/EntrarPage'));
 const CadastrarPage = lazy(() => import('@/features/auth/pages/CadastrarPage'));
 const PainelPage = lazy(() => import('@/features/dashboard/pages/PainelPage'));
 const CadastrosPage = lazy(() => import('@/features/cadastros/pages/CadastrosPage'));
+const PermissoesPage = lazy(() => import('@/features/permissoes/pages/PermissoesPage'));
 const ModuloEmBrevePage = lazy(() => import('@/features/sistema/pages/ModuloEmBrevePage'));
 const NaoEncontradoPage = lazy(() => import('@/features/sistema/pages/NaoEncontradoPage'));
 
@@ -34,6 +35,7 @@ const NaoEncontradoPage = lazy(() => import('@/features/sistema/pages/NaoEncontr
 const PAGINAS: Record<string, ComponentType> = {
   '/painel': PainelPage,
   '/cadastros': CadastrosPage,
+  '/permissoes': PermissoesPage,
 };
 
 /**

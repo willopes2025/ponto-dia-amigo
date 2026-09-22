@@ -71,7 +71,9 @@ export function CadastroForm({
       <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {registro ? `Editar ${config.rotuloSingular}` : `Novo ${config.rotuloSingular}`}
+            {registro
+              ? `Editar ${config.rotuloSingular}`
+              : `${config.genero === 'f' ? 'Nova' : 'Novo'} ${config.rotuloSingular}`}
           </DialogTitle>
           <DialogDescription>{config.descricao}</DialogDescription>
         </DialogHeader>

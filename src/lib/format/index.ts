@@ -116,3 +116,16 @@ export function iniciais(nome: string | null | undefined): string {
   if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
   return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
 }
+
+/**
+ * Normaliza para comparação: minúscula e sem acento.
+ *
+ * A mesma regra que `public.normalizar_texto()` aplica no banco — buscar
+ * "otica" precisa achar "Ótica" na tela tanto quanto na consulta.
+ */
+export function normalizar(texto: string | null | undefined): string {
+  return (texto ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}

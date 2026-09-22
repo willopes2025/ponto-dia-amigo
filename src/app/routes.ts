@@ -326,7 +326,7 @@ export const MODULOS: ModuloDef[] = [
     grupo: 'sistema',
     permissao: 'permissoes.consultar',
     resumo: 'Modelos de permissão numa matriz de módulo × ação, com 268 chaves.',
-    fase: 1,
+    fase: null,
     busca: ['perfil', 'cargo', 'rbac', 'modelo'],
   },
   {

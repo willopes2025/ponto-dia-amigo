@@ -46,6 +46,13 @@ describe('configuração dos cadastros', () => {
     }
   });
 
+  it('todo cadastro declara o gênero do rótulo', () => {
+    // Sem isso a tela escreve "Novo grife" e "Novo forma de pagamento".
+    for (const cadastro of CADASTROS) {
+      expect(['m', 'f'], cadastro.slug).toContain(cadastro.genero);
+    }
+  });
+
   it('acha o cadastro pelo slug', () => {
     expect(cadastroPorSlug('grifes')?.tabela).toBe('grifes');
     expect(cadastroPorSlug('inexistente')).toBeUndefined();

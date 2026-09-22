@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import { Logo } from '@/components/comum/Logo';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -19,7 +19,13 @@ import { entrarSchema, type EntrarForm } from '../schemas';
 export default function EntrarPage() {
   const { entrar, usuarioAutenticado, carregando } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [erro, setErro] = useState<string | null>(null);
+
+  // Quando o guarda de rota manda para cá, ele diz de onde veio. Voltar para o
+  // painel em vez do destino original é o que transforma um link compartilhado
+  // ("olha o cliente tal") numa viagem ao lugar errado.
+  const destino = (location.state as { de?: string } | null)?.de ?? '/painel';
 
   const form = useForm<EntrarForm>({
     resolver: zodResolver(entrarSchema),
@@ -27,7 +33,7 @@ export default function EntrarPage() {
   });
 
   if (!carregando && usuarioAutenticado) {
-    return <Navigate to="/painel" replace />;
+    return <Navigate to={destino} replace />;
   }
 
   const enviar = async (dados: EntrarForm) => {
@@ -37,7 +43,7 @@ export default function EntrarPage() {
       setErro(falha);
       return;
     }
-    navigate('/painel', { replace: true });
+    navigate(destino, { replace: true });
   };
 
   return (
