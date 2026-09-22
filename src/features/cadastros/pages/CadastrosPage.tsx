@@ -20,6 +20,16 @@ import {
   type LinhaCadastro,
 } from '../api';
 import { CADASTROS, GRUPOS_CADASTRO, cadastroPorSlug } from '../config';
+
+/**
+ * Cadastros com tela própria: fogem da forma genérica (fornecedor tem contatos,
+ * filial tem dias úteis e certificado) e por isso não estão em `config.ts`.
+ */
+const DEDICADOS = [
+  { path: '/cadastros/fornecedores', rotulo: 'Fornecedores e laboratórios', permissao: 'cadastros.fornecedores' },
+  { path: '/cadastros/funcionarios', rotulo: 'Funcionários', permissao: 'cadastros.funcionarios' },
+  { path: '/cadastros/filiais', rotulo: 'Filiais', permissao: 'cadastros.filiais' },
+] as const;
 import { CadastroForm } from '../components/CadastroForm';
 
 /**
@@ -220,6 +230,23 @@ export default function CadastrosPage() {
       />
 
       <div className="space-y-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="w-20 shrink-0 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Estrutura
+          </span>
+          {DEDICADOS.filter((d) => can(d.permissao)).map((item) => (
+            <Button
+              key={item.path}
+              variant="outline"
+              size="sm"
+              className="h-7 px-2.5 text-xs"
+              onClick={() => navigate(item.path)}
+            >
+              {item.rotulo}
+            </Button>
+          ))}
+        </div>
+
         {GRUPOS_CADASTRO.map((grupo) => {
           const doGrupo = disponiveis.filter((c) => c.grupo === grupo.chave);
           if (doGrupo.length === 0) return null;

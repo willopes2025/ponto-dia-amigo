@@ -28,6 +28,11 @@ const PermissoesPage = lazy(() => import('@/features/permissoes/pages/Permissoes
 const ClientesPage = lazy(() => import('@/features/clientes/pages/ClientesPage'));
 const ClienteFormPage = lazy(() => import('@/features/clientes/pages/ClienteFormPage'));
 const ReceitasPage = lazy(() => import('@/features/receitas/pages/ReceitasPage'));
+const ReceitaFormPage = lazy(() => import('@/features/receitas/pages/ReceitaFormPage'));
+const UsuariosPage = lazy(() => import('@/features/usuarios/pages/UsuariosPage'));
+const FornecedoresPage = lazy(() => import('@/features/cadastros/pages/FornecedoresPage'));
+const FuncionariosPage = lazy(() => import('@/features/cadastros/pages/FuncionariosPage'));
+const FiliaisPage = lazy(() => import('@/features/cadastros/pages/FiliaisPage'));
 const ModuloEmBrevePage = lazy(() => import('@/features/sistema/pages/ModuloEmBrevePage'));
 const NaoEncontradoPage = lazy(() => import('@/features/sistema/pages/NaoEncontradoPage'));
 
@@ -41,6 +46,7 @@ const PAGINAS: Record<string, ComponentType> = {
   '/permissoes': PermissoesPage,
   '/clientes': ClientesPage,
   '/receitas': ReceitasPage,
+  '/usuarios': UsuariosPage,
 };
 
 /**
@@ -50,6 +56,10 @@ const PAGINAS: Record<string, ComponentType> = {
 const SUBROTAS: { path: string; permissao: PermissionKey; pagina: ComponentType }[] = [
   { path: '/cadastros/:slug', permissao: 'cadastros.acessar', pagina: CadastrosPage },
   { path: '/clientes/:id', permissao: 'clientes.consultar', pagina: ClienteFormPage },
+  { path: '/receitas/:id', permissao: 'receitas.consultar', pagina: ReceitaFormPage },
+  { path: '/cadastros/fornecedores', permissao: 'cadastros.fornecedores', pagina: FornecedoresPage },
+  { path: '/cadastros/funcionarios', permissao: 'cadastros.funcionarios', pagina: FuncionariosPage },
+  { path: '/cadastros/filiais', permissao: 'cadastros.filiais', pagina: FiliaisPage },
 ];
 
 export default function App() {

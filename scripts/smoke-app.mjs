@@ -32,6 +32,11 @@ const TELAS = [
   { nome: 'cadastros-formas-pagamento', rota: '/cadastros/formas-pagamento' },
   { nome: 'cadastros-feriados', rota: '/cadastros/feriados' },
   { nome: 'permissoes', rota: '/permissoes' },
+  { nome: 'usuarios', rota: '/usuarios' },
+  { nome: 'receita-nova', rota: '/receitas/nova' },
+  { nome: 'fornecedores', rota: '/cadastros/fornecedores' },
+  { nome: 'funcionarios', rota: '/cadastros/funcionarios' },
+  { nome: 'filiais', rota: '/cadastros/filiais' },
 ];
 
 /** O certificado do proxy e a fonte do Google não são problema da aplicação. */

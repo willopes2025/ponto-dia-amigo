@@ -316,7 +316,7 @@ export const MODULOS: ModuloDef[] = [
     grupo: 'sistema',
     permissao: 'usuarios.consultar',
     resumo: 'Convite de acesso, filiais por usuário e limite de desconto.',
-    fase: 1,
+    fase: null,
     busca: ['convite', 'acesso', 'senha'],
   },
   {
