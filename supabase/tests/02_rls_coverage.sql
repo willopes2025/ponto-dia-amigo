@@ -183,6 +183,56 @@ end $$;
 \warn '✓ cobertura de RLS em ordem'
 
 \warn ''
+\warn '── Políticas chamam função por consulta, não por linha ───────────────'
+
+-- Função chamada direto numa política é avaliada UMA VEZ POR LINHA; embrulhada
+-- em (select ...), vira InitPlan e roda uma vez por consulta. Medido aqui, numa
+-- listagem de 10 mil clientes com 200 mil no banco: 173 ms contra 6,2 ms.
+--
+-- É invisível em desenvolvimento, com trinta linhas de teste, e dolorosa na
+-- rede grande — o cliente que mais paga. Por isso vira teste, e não recomendação
+-- num documento que ninguém relê.
+do $$
+declare
+  r        record;
+  v_erros  text[] := '{}';
+  v_expr   text;
+  v_funcao text;
+  v_total  integer;
+  v_soltas integer;
+begin
+  for r in
+    select tablename, policyname,
+           coalesce(qual, '') || ' ' || coalesce(with_check, '') as expr
+      from pg_policies where schemaname = 'public'
+  loop
+    v_expr := r.expr;
+
+    foreach v_funcao in array array['current_tenant_id(', 'has_permission(', 'current_profile_id('] loop
+      -- Quantas vezes a função aparece, e quantas dessas vêm logo depois de um
+      -- SELECT. Se os dois números não baterem, sobrou chamada solta.
+      v_total := (length(v_expr) - length(replace(v_expr, v_funcao, '')))
+                 / length(v_funcao);
+      v_soltas := v_total
+                  - (length(v_expr) - length(replace(v_expr, 'SELECT ' || v_funcao, '')))
+                    / length('SELECT ' || v_funcao);
+
+      if v_soltas > 0 then
+        v_erros := v_erros || format('%s.%s (%s ×%s)', r.tablename, r.policyname, v_funcao, v_soltas);
+      end if;
+    end loop;
+  end loop;
+
+  if array_length(v_erros, 1) > 0 then
+    raise exception
+      'FALHOU: políticas chamando função por linha em vez de (select ...): %',
+      array_to_string(v_erros, '; ');
+  end if;
+  raise notice '  ok · as % políticas avaliam função uma vez por consulta',
+    (select count(*) from pg_policies where schemaname = 'public');
+end $$;
+
+\warn ''
 \warn '── Contrato das tabelas de apoio ─────────────────────────────────────'
 
 -- A tela genérica de cadastros escreve nome, ordem e ativo em qualquer tabela

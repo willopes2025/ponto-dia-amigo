@@ -262,7 +262,7 @@ alter table public.receita_historico enable row level security;
 
 create policy receita_historico_select on public.receita_historico
   for select to authenticated
-  using (tenant_id = public.current_tenant_id());
+  using (tenant_id = (select public.current_tenant_id()));
 
 grant select on public.receita_historico to authenticated;
 grant select on public.vw_receitas_vencidas to authenticated;

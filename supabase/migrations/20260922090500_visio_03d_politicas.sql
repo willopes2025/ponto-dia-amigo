@@ -50,12 +50,22 @@ begin
   -- Toda tabela de domínio carrega tenant_id. As store-scoped carregam também
   -- store_id, e aí o recorte é pelas filiais do usuário — que já é um
   -- subconjunto da rede dele, então checar as duas coisas seria redundante.
+  -- CADA CHAMADA VAI EMBRULHADA EM (select ...), e isso não é estilo.
+  --
+  -- Função chamada direto numa política é avaliada UMA VEZ POR LINHA.
+  -- Embrulhada numa subconsulta, vira InitPlan: avaliada uma vez por consulta.
+  -- Medido neste projeto, numa listagem de 10 mil clientes com 200 mil no
+  -- banco: 173 ms na forma direta contra 6,2 ms na embrulhada.
+  --
+  -- A diferença cresce com o volume — aparece exatamente na rede grande, que é
+  -- o cliente que mais paga. A suíte 02_rls_coverage.sql reprova qualquer
+  -- política que volte à forma direta.
   if p_escopo = 'store' then
     v_escopo_using := 'store_id in (select public.current_store_ids())';
     v_escopo_check := v_escopo_using
-      || ' and tenant_id = public.current_tenant_id()';
+      || ' and tenant_id = (select public.current_tenant_id())';
   else
-    v_escopo_using := 'tenant_id = public.current_tenant_id()';
+    v_escopo_using := 'tenant_id = (select public.current_tenant_id())';
     v_escopo_check := v_escopo_using;
   end if;
 
@@ -71,21 +81,21 @@ begin
     'create policy %I on public.%I for select to authenticated using (%s)',
     p_tabela || '_select', p_tabela,
     v_escopo_using
-      || coalesce(format(' and public.has_permission(%L)', p_perm_select), '')
+      || coalesce(format(' and (select public.has_permission(%L))', p_perm_select), '')
   );
 
   execute format(
     'create policy %I on public.%I for insert to authenticated with check (%s)',
     p_tabela || '_insert', p_tabela,
     v_escopo_check
-      || coalesce(format(' and public.has_permission(%L)', p_perm_insert), '')
+      || coalesce(format(' and (select public.has_permission(%L))', p_perm_insert), '')
   );
 
   execute format(
     'create policy %I on public.%I for update to authenticated using (%s) with check (%s)',
     p_tabela || '_update', p_tabela,
     v_escopo_using
-      || coalesce(format(' and public.has_permission(%L)', p_perm_update), ''),
+      || coalesce(format(' and (select public.has_permission(%L))', p_perm_update), ''),
     v_escopo_check
   );
 
@@ -93,7 +103,7 @@ begin
     'create policy %I on public.%I for delete to authenticated using (%s)',
     p_tabela || '_delete', p_tabela,
     v_escopo_using
-      || coalesce(format(' and public.has_permission(%L)', p_perm_delete), '')
+      || coalesce(format(' and (select public.has_permission(%L))', p_perm_delete), '')
   );
 
   execute format(

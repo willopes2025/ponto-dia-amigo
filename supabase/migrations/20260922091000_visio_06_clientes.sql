@@ -369,6 +369,6 @@ alter table public.cliente_metricas enable row level security;
 
 create policy cliente_metricas_select on public.cliente_metricas
   for select to authenticated
-  using (tenant_id = public.current_tenant_id());
+  using (tenant_id = (select public.current_tenant_id()));
 
 grant select on public.cliente_metricas to authenticated;

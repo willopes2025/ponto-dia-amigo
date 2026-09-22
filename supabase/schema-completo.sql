@@ -698,54 +698,54 @@ create policy permissions_select on public.permissions
 -- tenants
 create policy tenants_select on public.tenants
   for select to authenticated
-  using (id = public.current_tenant_id());
+  using (id = (select public.current_tenant_id()));
 
 create policy tenants_update on public.tenants
   for update to authenticated
-  using (id = public.current_tenant_id() and public.has_permission('configuracoes.dados_empresa'))
-  with check (id = public.current_tenant_id());
+  using (id = (select public.current_tenant_id()) and (select public.has_permission('configuracoes.dados_empresa')))
+  with check (id = (select public.current_tenant_id()));
 
 -- stores: leitura de todas as filiais da rede (o seletor e os cadastros
 -- precisam listar), escrita só com permissão de cadastro de filial.
 create policy stores_select on public.stores
   for select to authenticated
-  using (tenant_id = public.current_tenant_id());
+  using (tenant_id = (select public.current_tenant_id()));
 
 create policy stores_insert on public.stores
   for insert to authenticated
-  with check (tenant_id = public.current_tenant_id() and public.has_permission('cadastros.filiais'));
+  with check (tenant_id = (select public.current_tenant_id()) and (select public.has_permission('cadastros.filiais')));
 
 create policy stores_update on public.stores
   for update to authenticated
-  using (tenant_id = public.current_tenant_id() and public.has_permission('cadastros.filiais'))
-  with check (tenant_id = public.current_tenant_id());
+  using (tenant_id = (select public.current_tenant_id()) and (select public.has_permission('cadastros.filiais')))
+  with check (tenant_id = (select public.current_tenant_id()));
 
 create policy stores_delete on public.stores
   for delete to authenticated
-  using (tenant_id = public.current_tenant_id() and public.has_permission('cadastros.filiais'));
+  using (tenant_id = (select public.current_tenant_id()) and (select public.has_permission('cadastros.filiais')));
 
 -- profiles
 create policy profiles_select on public.profiles
   for select to authenticated
-  using (tenant_id = public.current_tenant_id());
+  using (tenant_id = (select public.current_tenant_id()));
 
 create policy profiles_insert on public.profiles
   for insert to authenticated
-  with check (tenant_id = public.current_tenant_id() and public.has_permission('usuarios.incluir'));
+  with check (tenant_id = (select public.current_tenant_id()) and (select public.has_permission('usuarios.incluir')));
 
 -- Cada um edita o próprio cadastro; editar o de outro exige permissão.
 -- Quais colunas podem mudar é decidido por guard_profiles_update().
 create policy profiles_update on public.profiles
   for update to authenticated
   using (
-    tenant_id = public.current_tenant_id()
-    and (user_id = auth.uid() or public.has_permission('usuarios.alterar'))
+    tenant_id = (select public.current_tenant_id())
+    and (user_id = auth.uid() or (select public.has_permission('usuarios.alterar')))
   )
-  with check (tenant_id = public.current_tenant_id());
+  with check (tenant_id = (select public.current_tenant_id()));
 
 create policy profiles_delete on public.profiles
   for delete to authenticated
-  using (tenant_id = public.current_tenant_id() and public.has_permission('usuarios.excluir'));
+  using (tenant_id = (select public.current_tenant_id()) and (select public.has_permission('usuarios.excluir')));
 
 -- user_stores
 create policy user_stores_select on public.user_stores
@@ -754,51 +754,51 @@ create policy user_stores_select on public.user_stores
     exists (
       select 1 from public.profiles p
        where p.id = user_stores.profile_id
-         and p.tenant_id = public.current_tenant_id()
+         and p.tenant_id = (select public.current_tenant_id())
     )
   );
 
 create policy user_stores_write on public.user_stores
   for all to authenticated
   using (
-    public.has_permission('usuarios.alterar')
+    (select public.has_permission('usuarios.alterar'))
     and exists (
       select 1 from public.profiles p
        where p.id = user_stores.profile_id
-         and p.tenant_id = public.current_tenant_id()
+         and p.tenant_id = (select public.current_tenant_id())
     )
   )
   with check (
-    public.has_permission('usuarios.alterar')
+    (select public.has_permission('usuarios.alterar'))
     and exists (
       select 1 from public.profiles p
        where p.id = user_stores.profile_id
-         and p.tenant_id = public.current_tenant_id()
+         and p.tenant_id = (select public.current_tenant_id())
     )
     and exists (
       select 1 from public.stores s
        where s.id = user_stores.store_id
-         and s.tenant_id = public.current_tenant_id()
+         and s.tenant_id = (select public.current_tenant_id())
     )
   );
 
 -- permission_profiles
 create policy permission_profiles_select on public.permission_profiles
   for select to authenticated
-  using (tenant_id = public.current_tenant_id());
+  using (tenant_id = (select public.current_tenant_id()));
 
 create policy permission_profiles_write on public.permission_profiles
   for all to authenticated
   using (
-    tenant_id = public.current_tenant_id()
-    and public.has_permission('permissoes.gerenciar_modelos')
+    tenant_id = (select public.current_tenant_id())
+    and (select public.has_permission('permissoes.gerenciar_modelos'))
     -- O perfil de proprietário não é editável por ninguém: é a trava que impede
     -- a rede de se trancar fora do próprio sistema.
     and not is_owner
   )
   with check (
-    tenant_id = public.current_tenant_id()
-    and public.has_permission('permissoes.gerenciar_modelos')
+    tenant_id = (select public.current_tenant_id())
+    and (select public.has_permission('permissoes.gerenciar_modelos'))
     and not is_owner
   );
 
@@ -808,27 +808,27 @@ create policy ppp_select on public.permission_profile_permissions
     exists (
       select 1 from public.permission_profiles pp
        where pp.id = permission_profile_permissions.permission_profile_id
-         and pp.tenant_id = public.current_tenant_id()
+         and pp.tenant_id = (select public.current_tenant_id())
     )
   );
 
 create policy ppp_write on public.permission_profile_permissions
   for all to authenticated
   using (
-    public.has_permission('permissoes.gerenciar_modelos')
+    (select public.has_permission('permissoes.gerenciar_modelos'))
     and exists (
       select 1 from public.permission_profiles pp
        where pp.id = permission_profile_permissions.permission_profile_id
-         and pp.tenant_id = public.current_tenant_id()
+         and pp.tenant_id = (select public.current_tenant_id())
          and not pp.is_owner
     )
   )
   with check (
-    public.has_permission('permissoes.gerenciar_modelos')
+    (select public.has_permission('permissoes.gerenciar_modelos'))
     and exists (
       select 1 from public.permission_profiles pp
        where pp.id = permission_profile_permissions.permission_profile_id
-         and pp.tenant_id = public.current_tenant_id()
+         and pp.tenant_id = (select public.current_tenant_id())
          and not pp.is_owner
     )
   );
@@ -840,38 +840,38 @@ create policy upp_select on public.user_permission_profiles
     exists (
       select 1 from public.profiles p
        where p.id = user_permission_profiles.profile_id
-         and p.tenant_id = public.current_tenant_id()
+         and p.tenant_id = (select public.current_tenant_id())
     )
   );
 
 create policy upp_write on public.user_permission_profiles
   for all to authenticated
   using (
-    public.has_permission('permissoes.atribuir_modelos')
+    (select public.has_permission('permissoes.atribuir_modelos'))
     and exists (
       select 1 from public.profiles p
        where p.id = user_permission_profiles.profile_id
-         and p.tenant_id = public.current_tenant_id()
+         and p.tenant_id = (select public.current_tenant_id())
     )
   )
   with check (
-    public.has_permission('permissoes.atribuir_modelos')
+    (select public.has_permission('permissoes.atribuir_modelos'))
     and exists (
       select 1 from public.profiles p
        where p.id = user_permission_profiles.profile_id
-         and p.tenant_id = public.current_tenant_id()
+         and p.tenant_id = (select public.current_tenant_id())
     )
     and exists (
       select 1 from public.permission_profiles pp
        where pp.id = user_permission_profiles.permission_profile_id
-         and pp.tenant_id = public.current_tenant_id()
+         and pp.tenant_id = (select public.current_tenant_id())
     )
   );
 
 -- audit_log: leitura sensível — escopo + permissão. Ninguém escreve direto.
 create policy audit_log_select on public.audit_log
   for select to authenticated
-  using (tenant_id = public.current_tenant_id() and public.has_permission('auditoria.consultar'));
+  using (tenant_id = (select public.current_tenant_id()) and (select public.has_permission('auditoria.consultar')));
 
 -- -----------------------------------------------------------------------------
 -- Grants explícitos
@@ -2113,24 +2113,24 @@ alter table public.user_invites enable row level security;
 
 create policy user_invites_select on public.user_invites
   for select to authenticated
-  using (tenant_id = public.current_tenant_id() and public.has_permission('usuarios.consultar'));
+  using (tenant_id = (select public.current_tenant_id()) and (select public.has_permission('usuarios.consultar')));
 
 create policy user_invites_insert on public.user_invites
   for insert to authenticated
   with check (
-    tenant_id = public.current_tenant_id()
-    and public.has_permission('usuarios.incluir')
+    tenant_id = (select public.current_tenant_id())
+    and (select public.has_permission('usuarios.incluir'))
     -- As filiais do convite têm de ser da própria rede.
     and not exists (
       select 1 from unnest(store_ids) sid
-       where sid not in (select id from public.stores where tenant_id = public.current_tenant_id())
+       where sid not in (select id from public.stores where tenant_id = (select public.current_tenant_id()))
     )
     -- E os modelos também.
     and not exists (
       select 1 from unnest(permission_profile_ids) ppid
        where ppid not in (
          select id from public.permission_profiles
-          where tenant_id = public.current_tenant_id() and not is_owner
+          where tenant_id = (select public.current_tenant_id()) and not is_owner
        )
     )
   );
@@ -2138,8 +2138,8 @@ create policy user_invites_insert on public.user_invites
 create policy user_invites_delete on public.user_invites
   for delete to authenticated
   using (
-    tenant_id = public.current_tenant_id()
-    and public.has_permission('usuarios.incluir')
+    tenant_id = (select public.current_tenant_id())
+    and (select public.has_permission('usuarios.incluir'))
     and aceito_em is null
   );
 
@@ -2205,12 +2205,22 @@ begin
   -- Toda tabela de domínio carrega tenant_id. As store-scoped carregam também
   -- store_id, e aí o recorte é pelas filiais do usuário — que já é um
   -- subconjunto da rede dele, então checar as duas coisas seria redundante.
+  -- CADA CHAMADA VAI EMBRULHADA EM (select ...), e isso não é estilo.
+  --
+  -- Função chamada direto numa política é avaliada UMA VEZ POR LINHA.
+  -- Embrulhada numa subconsulta, vira InitPlan: avaliada uma vez por consulta.
+  -- Medido neste projeto, numa listagem de 10 mil clientes com 200 mil no
+  -- banco: 173 ms na forma direta contra 6,2 ms na embrulhada.
+  --
+  -- A diferença cresce com o volume — aparece exatamente na rede grande, que é
+  -- o cliente que mais paga. A suíte 02_rls_coverage.sql reprova qualquer
+  -- política que volte à forma direta.
   if p_escopo = 'store' then
     v_escopo_using := 'store_id in (select public.current_store_ids())';
     v_escopo_check := v_escopo_using
-      || ' and tenant_id = public.current_tenant_id()';
+      || ' and tenant_id = (select public.current_tenant_id())';
   else
-    v_escopo_using := 'tenant_id = public.current_tenant_id()';
+    v_escopo_using := 'tenant_id = (select public.current_tenant_id())';
     v_escopo_check := v_escopo_using;
   end if;
 
@@ -2226,21 +2236,21 @@ begin
     'create policy %I on public.%I for select to authenticated using (%s)',
     p_tabela || '_select', p_tabela,
     v_escopo_using
-      || coalesce(format(' and public.has_permission(%L)', p_perm_select), '')
+      || coalesce(format(' and (select public.has_permission(%L))', p_perm_select), '')
   );
 
   execute format(
     'create policy %I on public.%I for insert to authenticated with check (%s)',
     p_tabela || '_insert', p_tabela,
     v_escopo_check
-      || coalesce(format(' and public.has_permission(%L)', p_perm_insert), '')
+      || coalesce(format(' and (select public.has_permission(%L))', p_perm_insert), '')
   );
 
   execute format(
     'create policy %I on public.%I for update to authenticated using (%s) with check (%s)',
     p_tabela || '_update', p_tabela,
     v_escopo_using
-      || coalesce(format(' and public.has_permission(%L)', p_perm_update), ''),
+      || coalesce(format(' and (select public.has_permission(%L))', p_perm_update), ''),
     v_escopo_check
   );
 
@@ -2248,7 +2258,7 @@ begin
     'create policy %I on public.%I for delete to authenticated using (%s)',
     p_tabela || '_delete', p_tabela,
     v_escopo_using
-      || coalesce(format(' and public.has_permission(%L)', p_perm_delete), '')
+      || coalesce(format(' and (select public.has_permission(%L))', p_perm_delete), '')
   );
 
   execute format(
@@ -3372,7 +3382,7 @@ alter table public.contadores enable row level security;
 
 create policy contadores_select on public.contadores
   for select to authenticated
-  using (tenant_id = public.current_tenant_id());
+  using (tenant_id = (select public.current_tenant_id()));
 
 grant select on public.contadores to authenticated;
 
@@ -3751,7 +3761,7 @@ alter table public.cliente_metricas enable row level security;
 
 create policy cliente_metricas_select on public.cliente_metricas
   for select to authenticated
-  using (tenant_id = public.current_tenant_id());
+  using (tenant_id = (select public.current_tenant_id()));
 
 grant select on public.cliente_metricas to authenticated;
 
@@ -4023,7 +4033,7 @@ alter table public.receita_historico enable row level security;
 
 create policy receita_historico_select on public.receita_historico
   for select to authenticated
-  using (tenant_id = public.current_tenant_id());
+  using (tenant_id = (select public.current_tenant_id()));
 
 grant select on public.receita_historico to authenticated;
 grant select on public.vw_receitas_vencidas to authenticated;

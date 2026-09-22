@@ -158,24 +158,24 @@ alter table public.user_invites enable row level security;
 
 create policy user_invites_select on public.user_invites
   for select to authenticated
-  using (tenant_id = public.current_tenant_id() and public.has_permission('usuarios.consultar'));
+  using (tenant_id = (select public.current_tenant_id()) and (select public.has_permission('usuarios.consultar')));
 
 create policy user_invites_insert on public.user_invites
   for insert to authenticated
   with check (
-    tenant_id = public.current_tenant_id()
-    and public.has_permission('usuarios.incluir')
+    tenant_id = (select public.current_tenant_id())
+    and (select public.has_permission('usuarios.incluir'))
     -- As filiais do convite têm de ser da própria rede.
     and not exists (
       select 1 from unnest(store_ids) sid
-       where sid not in (select id from public.stores where tenant_id = public.current_tenant_id())
+       where sid not in (select id from public.stores where tenant_id = (select public.current_tenant_id()))
     )
     -- E os modelos também.
     and not exists (
       select 1 from unnest(permission_profile_ids) ppid
        where ppid not in (
          select id from public.permission_profiles
-          where tenant_id = public.current_tenant_id() and not is_owner
+          where tenant_id = (select public.current_tenant_id()) and not is_owner
        )
     )
   );
@@ -183,8 +183,8 @@ create policy user_invites_insert on public.user_invites
 create policy user_invites_delete on public.user_invites
   for delete to authenticated
   using (
-    tenant_id = public.current_tenant_id()
-    and public.has_permission('usuarios.incluir')
+    tenant_id = (select public.current_tenant_id())
+    and (select public.has_permission('usuarios.incluir'))
     and aceito_em is null
   );
 

@@ -328,54 +328,54 @@ create policy permissions_select on public.permissions
 -- tenants
 create policy tenants_select on public.tenants
   for select to authenticated
-  using (id = public.current_tenant_id());
+  using (id = (select public.current_tenant_id()));
 
 create policy tenants_update on public.tenants
   for update to authenticated
-  using (id = public.current_tenant_id() and public.has_permission('configuracoes.dados_empresa'))
-  with check (id = public.current_tenant_id());
+  using (id = (select public.current_tenant_id()) and (select public.has_permission('configuracoes.dados_empresa')))
+  with check (id = (select public.current_tenant_id()));
 
 -- stores: leitura de todas as filiais da rede (o seletor e os cadastros
 -- precisam listar), escrita só com permissão de cadastro de filial.
 create policy stores_select on public.stores
   for select to authenticated
-  using (tenant_id = public.current_tenant_id());
+  using (tenant_id = (select public.current_tenant_id()));
 
 create policy stores_insert on public.stores
   for insert to authenticated
-  with check (tenant_id = public.current_tenant_id() and public.has_permission('cadastros.filiais'));
+  with check (tenant_id = (select public.current_tenant_id()) and (select public.has_permission('cadastros.filiais')));
 
 create policy stores_update on public.stores
   for update to authenticated
-  using (tenant_id = public.current_tenant_id() and public.has_permission('cadastros.filiais'))
-  with check (tenant_id = public.current_tenant_id());
+  using (tenant_id = (select public.current_tenant_id()) and (select public.has_permission('cadastros.filiais')))
+  with check (tenant_id = (select public.current_tenant_id()));
 
 create policy stores_delete on public.stores
   for delete to authenticated
-  using (tenant_id = public.current_tenant_id() and public.has_permission('cadastros.filiais'));
+  using (tenant_id = (select public.current_tenant_id()) and (select public.has_permission('cadastros.filiais')));
 
 -- profiles
 create policy profiles_select on public.profiles
   for select to authenticated
-  using (tenant_id = public.current_tenant_id());
+  using (tenant_id = (select public.current_tenant_id()));
 
 create policy profiles_insert on public.profiles
   for insert to authenticated
-  with check (tenant_id = public.current_tenant_id() and public.has_permission('usuarios.incluir'));
+  with check (tenant_id = (select public.current_tenant_id()) and (select public.has_permission('usuarios.incluir')));
 
 -- Cada um edita o próprio cadastro; editar o de outro exige permissão.
 -- Quais colunas podem mudar é decidido por guard_profiles_update().
 create policy profiles_update on public.profiles
   for update to authenticated
   using (
-    tenant_id = public.current_tenant_id()
-    and (user_id = auth.uid() or public.has_permission('usuarios.alterar'))
+    tenant_id = (select public.current_tenant_id())
+    and (user_id = auth.uid() or (select public.has_permission('usuarios.alterar')))
   )
-  with check (tenant_id = public.current_tenant_id());
+  with check (tenant_id = (select public.current_tenant_id()));
 
 create policy profiles_delete on public.profiles
   for delete to authenticated
-  using (tenant_id = public.current_tenant_id() and public.has_permission('usuarios.excluir'));
+  using (tenant_id = (select public.current_tenant_id()) and (select public.has_permission('usuarios.excluir')));
 
 -- user_stores
 create policy user_stores_select on public.user_stores
@@ -384,51 +384,51 @@ create policy user_stores_select on public.user_stores
     exists (
       select 1 from public.profiles p
        where p.id = user_stores.profile_id
-         and p.tenant_id = public.current_tenant_id()
+         and p.tenant_id = (select public.current_tenant_id())
     )
   );
 
 create policy user_stores_write on public.user_stores
   for all to authenticated
   using (
-    public.has_permission('usuarios.alterar')
+    (select public.has_permission('usuarios.alterar'))
     and exists (
       select 1 from public.profiles p
        where p.id = user_stores.profile_id
-         and p.tenant_id = public.current_tenant_id()
+         and p.tenant_id = (select public.current_tenant_id())
     )
   )
   with check (
-    public.has_permission('usuarios.alterar')
+    (select public.has_permission('usuarios.alterar'))
     and exists (
       select 1 from public.profiles p
        where p.id = user_stores.profile_id
-         and p.tenant_id = public.current_tenant_id()
+         and p.tenant_id = (select public.current_tenant_id())
     )
     and exists (
       select 1 from public.stores s
        where s.id = user_stores.store_id
-         and s.tenant_id = public.current_tenant_id()
+         and s.tenant_id = (select public.current_tenant_id())
     )
   );
 
 -- permission_profiles
 create policy permission_profiles_select on public.permission_profiles
   for select to authenticated
-  using (tenant_id = public.current_tenant_id());
+  using (tenant_id = (select public.current_tenant_id()));
 
 create policy permission_profiles_write on public.permission_profiles
   for all to authenticated
   using (
-    tenant_id = public.current_tenant_id()
-    and public.has_permission('permissoes.gerenciar_modelos')
+    tenant_id = (select public.current_tenant_id())
+    and (select public.has_permission('permissoes.gerenciar_modelos'))
     -- O perfil de proprietário não é editável por ninguém: é a trava que impede
     -- a rede de se trancar fora do próprio sistema.
     and not is_owner
   )
   with check (
-    tenant_id = public.current_tenant_id()
-    and public.has_permission('permissoes.gerenciar_modelos')
+    tenant_id = (select public.current_tenant_id())
+    and (select public.has_permission('permissoes.gerenciar_modelos'))
     and not is_owner
   );
 
@@ -438,27 +438,27 @@ create policy ppp_select on public.permission_profile_permissions
     exists (
       select 1 from public.permission_profiles pp
        where pp.id = permission_profile_permissions.permission_profile_id
-         and pp.tenant_id = public.current_tenant_id()
+         and pp.tenant_id = (select public.current_tenant_id())
     )
   );
 
 create policy ppp_write on public.permission_profile_permissions
   for all to authenticated
   using (
-    public.has_permission('permissoes.gerenciar_modelos')
+    (select public.has_permission('permissoes.gerenciar_modelos'))
     and exists (
       select 1 from public.permission_profiles pp
        where pp.id = permission_profile_permissions.permission_profile_id
-         and pp.tenant_id = public.current_tenant_id()
+         and pp.tenant_id = (select public.current_tenant_id())
          and not pp.is_owner
     )
   )
   with check (
-    public.has_permission('permissoes.gerenciar_modelos')
+    (select public.has_permission('permissoes.gerenciar_modelos'))
     and exists (
       select 1 from public.permission_profiles pp
        where pp.id = permission_profile_permissions.permission_profile_id
-         and pp.tenant_id = public.current_tenant_id()
+         and pp.tenant_id = (select public.current_tenant_id())
          and not pp.is_owner
     )
   );
@@ -470,38 +470,38 @@ create policy upp_select on public.user_permission_profiles
     exists (
       select 1 from public.profiles p
        where p.id = user_permission_profiles.profile_id
-         and p.tenant_id = public.current_tenant_id()
+         and p.tenant_id = (select public.current_tenant_id())
     )
   );
 
 create policy upp_write on public.user_permission_profiles
   for all to authenticated
   using (
-    public.has_permission('permissoes.atribuir_modelos')
+    (select public.has_permission('permissoes.atribuir_modelos'))
     and exists (
       select 1 from public.profiles p
        where p.id = user_permission_profiles.profile_id
-         and p.tenant_id = public.current_tenant_id()
+         and p.tenant_id = (select public.current_tenant_id())
     )
   )
   with check (
-    public.has_permission('permissoes.atribuir_modelos')
+    (select public.has_permission('permissoes.atribuir_modelos'))
     and exists (
       select 1 from public.profiles p
        where p.id = user_permission_profiles.profile_id
-         and p.tenant_id = public.current_tenant_id()
+         and p.tenant_id = (select public.current_tenant_id())
     )
     and exists (
       select 1 from public.permission_profiles pp
        where pp.id = user_permission_profiles.permission_profile_id
-         and pp.tenant_id = public.current_tenant_id()
+         and pp.tenant_id = (select public.current_tenant_id())
     )
   );
 
 -- audit_log: leitura sensível — escopo + permissão. Ninguém escreve direto.
 create policy audit_log_select on public.audit_log
   for select to authenticated
-  using (tenant_id = public.current_tenant_id() and public.has_permission('auditoria.consultar'));
+  using (tenant_id = (select public.current_tenant_id()) and (select public.has_permission('auditoria.consultar')));
 
 -- -----------------------------------------------------------------------------
 -- Grants explícitos
