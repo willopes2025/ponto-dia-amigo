@@ -21,7 +21,11 @@
     "db:dev": "bash scripts/db-dev.sh",
     "dev:backend": "node scripts/dev-backend.mjs",
     "smoke": "node scripts/smoke.mjs",
-    "smoke:app": "node scripts/smoke-app.mjs"
+    "smoke:app": "node scripts/smoke-app.mjs",
+    "demo:dados": "node scripts/gen-demo-data.mjs",
+    "build:demo": "vite build --mode demo",
+    "smoke:demo": "node scripts/smoke-demo.mjs",
+    "preview:demo": "vite preview --port 4173 --host 127.0.0.1"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

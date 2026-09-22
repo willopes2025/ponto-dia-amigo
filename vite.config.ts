@@ -15,10 +15,23 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
   ].filter(Boolean),
   resolve: {
+    // A ORDEM IMPORTA: o alias é avaliado de cima para baixo, e "@" casa com
+    // qualquer caminho que comece por "@/". Se ele viesse primeiro, o alias
+    // específico abaixo nunca seria alcançado — e o build de demonstração sairia
+    // silenciosamente com o cliente de produção dentro.
     alias: {
+      // No build de demonstração, o cliente Supabase é trocado por um que
+      // responde a partir de dados embutidos. Fazer a troca aqui — e não com
+      // um `if` dentro do cliente — mantém o bundle de produção sem nenhum
+      // vestígio de demonstração.
+      ...(mode === "demo"
+        ? { "@/lib/supabase/client": path.resolve(__dirname, "./src/lib/supabase/client.demo.ts") }
+        : {}),
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  // A demonstração é servida de um caminho qualquer, não da raiz do domínio.
+  base: mode === "demo" ? "./" : "/",
   build: {
     rollupOptions: {
       output: {

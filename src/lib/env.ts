@@ -7,6 +7,18 @@ import { z } from 'zod';
  * com uma mensagem clara do que subir e quebrar na primeira consulta com
  * "Invalid API key", que manda o desenvolvedor caçar o problema no lugar errado.
  */
+/**
+ * A versão de demonstração roda sem backend, com dados embutidos no bundle.
+ * Publicada como página estática, não tem projeto Supabase para onde apontar.
+ *
+ * Deriva do modo do build (`vite build --mode demo`), e não de uma variável
+ * própria: o vite.config já troca o cliente Supabase por esse mesmo modo, e
+ * dois interruptores para a mesma decisão acabam ligados pela metade — foi o
+ * que aconteceu na primeira tentativa, com o alias ativo e a interface achando
+ * que estava em produção.
+ */
+export const MODO_DEMO = import.meta.env.MODE === 'demo';
+
 const schema = z.object({
   VITE_SUPABASE_URL: z
     .string({ required_error: 'VITE_SUPABASE_URL não definida' })
@@ -24,6 +36,14 @@ const schema = z.object({
 });
 
 function carregar() {
+  if (MODO_DEMO) {
+    // Sem credencial a validar: o cliente de demonstração não fala com ninguém.
+    return schema.parse({
+      VITE_SUPABASE_URL: 'https://demonstracao.visio.app',
+      VITE_SUPABASE_ANON_KEY: 'demonstracao-sem-backend-nao-ha-credencial',
+    });
+  }
+
   const resultado = schema.safeParse(import.meta.env);
 
   if (!resultado.success) {
